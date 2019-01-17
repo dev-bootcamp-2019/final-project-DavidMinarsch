@@ -10,7 +10,8 @@ class NetworkNotice extends Component {
   render() {
     const { network } = this.props;
 
-    if (network === process.env.ETH_NETWORK) { return (<div />); }
+    //network === process.env.DEFAULT_NETWORK
+    if (true) { return (<div />); }
 
     return (
       <div className="modal is-active">
@@ -19,6 +20,7 @@ class NetworkNotice extends Component {
           <article className="message">
             <div className="message-header is-color-warning">
               <p> Wrong network detected </p>
+              <button class="delete toggle-modal"></button>
             </div>
             <div className="message-body">
               <div>
@@ -26,7 +28,7 @@ class NetworkNotice extends Component {
               </div>
               <div>
                 Please switch to
-                &nbsp;<NetworkStatus network={process.env.ETH_NETWORK} />&nbsp; to access the dapp.
+                &nbsp;<NetworkStatus network={'rinkeby'} />&nbsp; to access the dapp.
               </div>
               <br />
             </div>

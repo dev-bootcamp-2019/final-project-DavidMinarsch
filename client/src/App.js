@@ -1,13 +1,14 @@
 import React, { Component } from "react";
-import Redirect from 'react-router/Redirect';
 import { HashRouter, Route, Switch } from 'react-router-dom';
 import ProofOfExistenceContract from "./contracts/ProofOfExistence.json";
 import getWeb3 from "./utils/getWeb3";
 
 import "./App.css";
-import Register from './components/Register/Register';
 import PathNotFound from './components/Shared/PathNotFound';
-
+import Header from './components/Shared/Header';
+import NetworkNotice from './components/Shared/NetworkNotice';
+import Register from './components/Register/Register';
+import Registrations from './components/Registrations/Registrations';
 
 class App extends Component {
   state = { 
@@ -17,35 +18,31 @@ class App extends Component {
             network: null,
             ids: [],
             registrations: [],
+            allRegistrationsLoaded: false,
             lastLoadedIdsIndex: 0
           };
 
   async getIds() {
     const { accounts, contract } = this.state;
     const newIds = await contract.methods.getIdsForAddress(accounts[0]).call();
-    this.setState({
-      ids: newIds,
-    });
     return newIds;
   } 
 
   async getRegistrations() {
-    const { ids, contract, lastLoadedIdsIndex, registrations } = this.state;
+    const { accounts, ids, contract, lastLoadedIdsIndex, registrations } = this.state;
     let newRegistrations = [];
-    for (let i = lastLoadedIdsIndex + 1; i <= lastLoadedIdsIndex + 5; i += 1) {
+    for (let i = lastLoadedIdsIndex; i < lastLoadedIdsIndex + 3; i += 1) {
       try {
         const registration = await contract.methods.getRegistrationForId(ids[i]).call();
         if (registration.hash === '') throw new Error('Registration does not exist.');
-        newRegistrations.push(registration);
+        if (registration.registrant !== accounts[0]) throw new Error('Registration belongs to a different account.');
+        newRegistrations.push([registration.hash, registration.hash, registration.timestamp]); //ensure we find transaction hash here too!
       } catch (e) {
+        this.setState({ allRegistrationsLoaded: true })
         break;
       }
     }
-    this.setState({
-      registrations: registrations.concat(newRegistrations),
-      lastLoadedIdsIndex: lastLoadedIdsIndex + newRegistrations.length,
-    });
-    return registrations.concat(newRegistrations);
+    return [registrations.concat(newRegistrations), lastLoadedIdsIndex + newRegistrations.length];
   }
 
   render() {
@@ -59,18 +56,17 @@ class App extends Component {
             <Route
               exact path="/"
               render={() => (
-                <Redirect
-                  to="/upload"
-                />
-              )}
-            />
-            <Route
-              exact path="/upload"
-              render={() => (
-                <Register
-                  {...this.state}
-                  retrieveMoreFiles={this.retrieveMoreFiles}
-                />
+                <div>
+                  <NetworkNotice {...this.state} />
+                  <Header {...this.state} />
+                  <Register
+                    {...this.state}
+                  />
+                  <Registrations
+                    {...this.state}
+                    getRegistrations={this.getRegistrations}
+                  />
+                </div>
               )}
             />
             <Route
@@ -95,7 +91,7 @@ class App extends Component {
       // Use web3 to get the user's accounts.
       const accounts = await web3.eth.getAccounts();
 
-      // Get the contract instance.
+      // Get the network.
       const networkId = await web3.eth.net.getId();
       const network = (function(id) { 
         switch (id) {
@@ -107,33 +103,34 @@ class App extends Component {
         }
       })(networkId);
       const deployedNetwork = ProofOfExistenceContract.networks[networkId];
+
+      // Get the contract instance.
       const instance = new web3.eth.Contract(
         ProofOfExistenceContract.abi,
         deployedNetwork && deployedNetwork.address,
       );
 
-
-      // Set web3, accounts, and contract to the state, and then proceed with an
-      // example of interacting with the contract's methods.
+      // Set web3, accounts, and contract to the state, and then proceed with 
+      // loading the account related registrations.
       this.setState({ web3, accounts, contract: instance, network }, this.onLoad);
     } catch (error) {
       // Catch any errors for any of the above operations.
       alert(
-        `Failed to load web3, accounts, or contract. Check console for details.`,
+        'Failed to load web3, accounts, or contract. Check console for details...',
       );
       console.error(error);
     }
   };
 
   onLoad = async () => {
-    // Gets all ids for account
+    
+    // Gets all ids for default account
     const ids = await this.getIds();
+    this.setState({ ids });
 
-    // Get first set of registrations
-    const registrations = await this.getRegistrations();
-
-    // // Update state with the result.
-    // this.setState({ ids, registrations });
+    // Get first set of registrations for default account
+    const [registrations, lastLoadedIdsIndex] = await this.getRegistrations();
+    this.setState({ registrations, lastLoadedIdsIndex });
   };
 }
 

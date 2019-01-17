@@ -1,16 +1,31 @@
 import React, { Component } from 'react';
-import { NavLink } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
 import NetworkStatus from './NetworkStatus';
 
 
 class Header extends Component {
-  componentDidMount() {}
+  constructor(props) {
+    super(props);
+    this.bindEventListeners = this.bindEventListeners.bind(this);
+  }
+
+  componentDidMount() {
+    this.bindEventListeners();
+  }
+
+  bindEventListeners() {
+    const burger = document.querySelector('.burger');
+    const nav = document.querySelector('#'+burger.dataset.target);
+ 
+    burger.addEventListener('click', function(){
+      burger.classList.toggle('is-active');
+      nav.classList.toggle('is-active');
+    });
+  }
 
   render() {
-    const { accounts, network, ids, registrations } = this.props;
-    const isActive = str => (window.location.href.includes(str) ? 'is-active' : '');
+    const { accounts, network } = this.props;
 
     return (
       <div>
@@ -20,28 +35,29 @@ class Header extends Component {
               <div className="container">
                 <div className="navbar-brand">
                   <a className="navbar-item" href="/">
-                    <img src="images/logo.png" alt="Logo" />
+                    <img src="images/unicorn.jpeg" alt="Logo" />
                   </a>
-                  <span className="navbar-burger burger" data-target="navbarMenuHeroB">
+                  <span className="navbar-burger burger" data-target="navbarMenu">
                     <span />
                     <span />
                     <span />
                   </span>
                 </div>
-                <div id="navbarMenuHeroB" className="navbar-menu">
+                <div id="navbarMenu" className="navbar-menu">
                   <div className="navbar-end">
                     <li className="navbar-item">
-                      <NetworkStatus network={network} />
+                      <div className="tag is-light">
+                        <NetworkStatus network={network} />
+                      </div>
                     </li>
                     <li className="navbar-item">
-                      {accounts}
+                      <div className="tag is-light">
+                        Account: <strong>{accounts[0]}</strong>
+                      </div>
                     </li>
                     <li className="navbar-item">
-                      {ids}
-                    </li>
-                    <li className="navbar-item">
-                      <div className="tag is-dark">
-                        IPFS: {process.env.USE_LOCAL_IPFS === 'true' ? 'local node' : 'remote gateway'}
+                      <div className="tag is-light">
+                        IPFS: <strong>{process.env.USE_LOCAL_IPFS === 'true' ? 'local node' : 'remote Infura gateway'}</strong>
                       </div>
                     </li>
                   </div>
@@ -53,26 +69,12 @@ class Header extends Component {
           <div className="hero-body">
             <div className="container has-text-centered">
               <p className="title">
-                Proof of Existence Decentralized App
+                Proof of Existence dApp
               </p>
             </div>
             <br />
           </div>
 
-          <div className="hero-foot">
-            <nav className="tabs is-boxed is-fullwidth">
-              <div className="container">
-                <ul>
-                  <li className={isActive('/upload')}>
-                    <NavLink to="/upload"> Register </NavLink>
-                  </li>
-                  <li className={isActive('/my')}>
-                    <NavLink to="/my"> My Registrations </NavLink>
-                  </li>
-                </ul>
-              </div>
-            </nav>
-          </div>
         </section>
       </div>
     );
