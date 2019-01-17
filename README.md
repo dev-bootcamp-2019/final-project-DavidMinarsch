@@ -1,6 +1,11 @@
 # final-project-DavidMinarsch
 
 ## To run:
+Ensure Node.js version is aligned:
+```
+nvm install
+```
+
 Start ganache-cli test blockchain:
 ```
 ganache-cli --deterministic
@@ -44,8 +49,11 @@ let foo = await poe.count()
 poe.count()
 const resultAccountOne = await poe.getIdsForAddress.call(await web3.eth.getAccounts().then(a => {return a[0];}))
 ```
-./node_modules/.bin/eslint migrations/**
+eslint migrations/**
+eslint test/proofofexistence.js
+eslint client/src/App.js
 solhint "contracts/**/*.sol"
+solhint "test/**/*.sol"
 myth -x contracts/ProofOfExistence.sol
 myth --truffle
 slither .
@@ -79,11 +87,6 @@ $ ipfs add -r public
 
 
 Guide:
-http://www.dappuniversity.com/articles/the-ultimate-ethereum-dapp-tutorial
-https://truffleframework.com/tutorials/pet-shop
-
-Metamask optin:
-https://medium.com/metamask/https-medium-com-metamask-breaking-change-injecting-web3-7722797916a8
 
 Create IPFS hash:
 https://github.com/saurfang/ipfs-multihash-on-solidity

@@ -19,6 +19,9 @@ module.exports = {
     "no-await-in-loop": "off",
   },
   "globals": {
+    "Web3": true,
+    "$": true,
+    "TruffleContract": true,
     "document": true,
     "history": true,
     "web3": true,

@@ -1,21 +1,24 @@
 import React, { Component } from 'react';
-import ipfsAPI from 'ipfs-api';
+// import ipfsAPI from 'ipfs-api';
 
-import Top from '../Shared/Top';
+import Header from '../Shared/Header';
 import EtherscanLink from '../Shared/EtherscanLink';
-import NetworkModal from '../Shared/NetworkModal';
-import { registerFile } from '../../utils/contract';
+import NetworkNotice from '../Shared/NetworkNotice';
 
-const useLocal = process.env.USE_LOCAL_IPFS === 'true';
-const localConfig = { host: 'localhost', port: '5001', protocol: 'http' };
-const remoteConfig = { host: process.env.REMOTE_IPFS_GATEWAY, protocol: 'https' };
-const ipfs = ipfsAPI(useLocal ? localConfig : remoteConfig);
+// const useLocal = process.env.USE_LOCAL_IPFS === 'true';
+// const localConfig = { host: 'localhost', port: '5001', protocol: 'http' };
+// const remoteConfig = { host: process.env.REMOTE_IPFS_GATEWAY, protocol: 'https' };
+// const ipfs = ipfsAPI(useLocal ? localConfig : remoteConfig);
 
 
-class FileUpload extends Component {
+class Register extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      ids: [],
+      web3: null,
+      accounts: null,
+      contract: null,
       filePath: null,
       file: null,
       success: null,
@@ -56,33 +59,48 @@ class FileUpload extends Component {
       this.updateError('File must be an image');
     }
 
-    const reader = new window.FileReader();
-    reader.onloadend = () => {
-      const buf = Buffer.from(reader.result, 'base64');
-      ipfs.files.add(buf, (err, result) => { // Upload buffer to IPFS
-        if (err) console.error(err);
-        const fileHash = result[0].hash;
-        this.registerFile(fileHash);
-      });
-    };
-    reader.readAsArrayBuffer(file);
+    // const reader = new window.FileReader();
+    // reader.onloadend = () => {
+    //   const buf = Buffer.from(reader.result, 'base64');
+    //   ipfs.files.add(buf, (err, result) => { // Upload buffer to IPFS
+    //     if (err) console.error(err);
+    //     const fileHash = result[0].hash;
+    //     this.registerFile(fileHash);
+    //   });
+    // };
+    // reader.readAsArrayBuffer(file);
   }
 
   async registerFile(fileHash) {
     const { account } = this.props;
-    await registerFile(fileHash, account, (err, txHash) => {
+    await this.registerTransaction(fileHash, account, (err, txHash) => {
       if (err) return this.updateError(err.message);
       return this.setState({ txHash, success: true, buttonLoading: false });
     }).catch(e => this.updateError(e.message));
   }
+
+  async registerTransaction(_fileHash, _ethWallet, callback) {
+    const gasCushion = 1.2;
+    const safeGasLimit = 2e5;
+    const gas = await this.state.contract.methods
+      .registerFile(_fileHash)
+      .estimateGas({ from: _ethWallet })
+      .catch(console.error);
+    return this.state.contract.methods
+      .registerFile(_fileHash)
+      .send({
+        from: _ethWallet,
+        gas: gas ? Math.floor(gas * gasCushion) : safeGasLimit,
+      }, callback);
+  };
 
   render() {
     const { file, filePath, txHash, success, error, buttonLoading } = this.state;
 
     return (
       <div>
-        <NetworkModal {...this.props} />
-        <Top {...this.props} />
+        <NetworkNotice {...this.props} />
+        <Header {...this.props} />
         <section className="container section">
           <div className="file has-name">
             <label id="file-input-label" htmlFor="file-input" className="file-label">
@@ -153,4 +171,4 @@ class FileUpload extends Component {
   }
 }
 
-export default FileUpload;
+export default Register;
