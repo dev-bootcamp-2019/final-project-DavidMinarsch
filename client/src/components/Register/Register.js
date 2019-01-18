@@ -1,22 +1,20 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import 'bulma/css/bulma.css'
 
-import ipfs from './ipfs';
-import EtherscanIOLink from '../Shared/EtherscanIOLink';
 import multihashes from 'multihashes'
 import moment from 'moment';
+import ipfs from './ipfs';
+import EtherscanIOLink from '../Shared/EtherscanIOLink';
 
 
 class Register extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      web3: props.web3,
       accounts: props.accounts,
       contract: props.contract,
-      filePath: null,
       file: null,
-      buffer: null,
       ipfsHash: null,
       success: null,
       error: null,
@@ -41,17 +39,8 @@ class Register extends Component {
     const { files } = document.getElementById('file-input');
 
     if (files.length > 0) {
-      const filePath = window.URL.createObjectURL(files[0]);
-      this.setState({ filePath, file: files[0] });
+      this.setState({ file: files[0] });
     }
-  }
-  
-  // file is converted to a buffer for upload to IPFS
-  convertToBuffer(reader) {
-    //file is converted to a buffer for upload to IPFS
-    const buffer = Buffer.from(reader.result);
-    //set this buffer -using es6 syntax
-    this.setState({buffer});
   }
 
   createHash() {
@@ -63,11 +52,6 @@ class Register extends Component {
       this.updateError('You did not select a file.');
       return;
     }
-    // // BMP, SVG, JPG, PNG and GIF
-    // const isImage = (file.name.endsWith('jpg') || file.name.endsWith('jpeg') || file.name.endsWith('gif') || file.name.endsWith('svg') || file.name.endsWith('png'));
-    // if (!isImage) {
-    //   this.updateError('File must be an image');
-    // }
 
     let reader = new window.FileReader();
     reader.readAsArrayBuffer(file);
@@ -76,7 +60,8 @@ class Register extends Component {
       ipfs.add(buffer, { onlyHash: true }, (err, ipfsHash) => { // Upload buffer to IPFS
         if (err) console.error(err);
         this.setState({ipfsHash: ipfsHash[0].hash});
-        this.registerOrRetrieveHash(this.state.ipfsHash, this.state.accounts[0], this.state.contract);
+        const { accounts, contract } = this.state;
+        this.registerOrRetrieveHash( ipfsHash[0].hash, accounts[0], contract);
       });
     };    
   }
@@ -91,29 +76,27 @@ class Register extends Component {
   }
 
   async registerOrRetrieveHash(_ipfsHash, _account, _contract) {
-    const multiHash = this.ipfs2multihash(_ipfsHash)
-    const registration = await this.checkHashIsNotRegistered(multiHash, _contract);
-    debugger;
+    const multiHash = this.ipfsHashToMultiHash(_ipfsHash)
+    const registration = await this.checkHashIsNotRegistered(multiHash.digest, _contract);
     if (registration.hash === "0x0000000000000000000000000000000000000000000000000000000000000000") {
-      this.registerHash(multiHash, _account, _contract);
+      this.registerHash(multiHash.digest, _account, _contract);
     } else {
       this.setState({account: registration.registrant});
       this.updateError(`The existence of this file was already proven ${moment.utc(parseInt(registration.timestamp, 10) * 1000).fromNow()} by account ${registration.registrant}.`)
-    };
+    }
   }
 
   async checkHashIsNotRegistered(_multiHash, _contract) {
     return _contract.methods.getRegistrationForHash(_multiHash).call().catch(e => this.updateError(e.message));
   }
 
-  ipfs2multihash (hash) {
-    let mh = multihashes.fromB58String(Buffer.from(hash))
-    return '0x' + mh.slice(2).toString('hex');
-    // return {
-    //   hashFunction: '0x' + mh.slice(0, 2).toString('hex'),
-    //   digest: '0x' + mh.slice(2).toString('hex'),
-    //   size: mh.length - 2
-    // }
+  ipfsHashToMultiHash (_ipfsHash) {
+    let multiHash = multihashes.fromB58String(Buffer.from(_ipfsHash))
+    return {
+      hashFunction: '0x' + multiHash.slice(0, 2).toString('hex'),
+      digest: '0x' + multiHash.slice(2).toString('hex'),
+      size: multiHash.length - 2
+    };
   }
 
   async registerHash(_multiHash, _account, _contract) {
@@ -139,7 +122,7 @@ class Register extends Component {
   }
 
   render() {
-    const { account, file, txHash, success, error, buttonLoading, network } = this.state;
+    const { account, file, ipfsHash, txHash, success, error, buttonLoading, network } = this.state;
 
     return (
       <div>
@@ -166,21 +149,13 @@ class Register extends Component {
             </label>
           </div>
           <br />
-          <ul >
-            <li > Demonstrate data ownership without revealing the actual data.</li>
-            <li > Document timestamping.</li>
-            <li > Document integrity checking.</li>
+          <ul>
+            <li> Demonstrate data ownership without revealing the actual data.</li>
+            <li> Document timestamping.</li>
+            <li> Document integrity checking.</li>
           </ul>
           <br />
           <br />
-          {/* {filePath && (<img src={filePath} alt="uploaded-file" />)}
-          <br />
-          <br />
-          {/* <div className="control">
-            <input className="input" name="tags" />
-          </div>
-          <br />
-          <br /> */}
           <button
             className={`button is-warning ${buttonLoading ? 'is-loading' : ''}`}
             onClick={this.createHash}
@@ -195,7 +170,7 @@ class Register extends Component {
               <article className="message is-success">
                 <div className="message-body">
                   <br />
-                  <p> Success: File registered on blockchain.</p>
+                  <p> Success: Hash {ipfsHash} registered on blockchain.</p>
                   <br />
                   {txHash && (<EtherscanIOLink type="tx" hash={txHash} network={network} />)}
                 </div>
@@ -207,7 +182,7 @@ class Register extends Component {
                   <br />
                   <p> Error: {error}   </p>
                   <br />
-                  {account && (<EtherscanIOLink hash={account} type={'address'} network={network} />)}
+                  {account && (<EtherscanIOLink hash={account} type="address" network={network} />)}
                 </div>
               </article>
             )}
@@ -218,5 +193,10 @@ class Register extends Component {
     );
   }
 }
+
+Register.propTypes = {
+  accounts: PropTypes.arrayOf(PropTypes.string).isRequired,
+  contract: PropTypes.objectOf(PropTypes.object).isRequired,
+};
 
 export default Register;

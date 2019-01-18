@@ -4979,10 +4979,16 @@
       "links": {},
       "address": "0xB2909426bE9708a66725A178106FD5160305b15a",
       "transactionHash": "0x3930b9c99199e08b860e68564d7efb1a21a56aa9c08b0552f0fd696a32a6c590"
+    },
+    "1547803991440": {
+      "events": {},
+      "links": {},
+      "address": "0x6137196A67b47844b5F939606B326569794932b3",
+      "transactionHash": "0x64d35a6b1f098e2cfd7e2b49292609e2b1882cd2952ef1a3ab7d3d0097bc898e"
     }
   },
   "schemaVersion": "3.0.0",
-  "updatedAt": "2019-01-17T09:44:42.548Z",
+  "updatedAt": "2019-01-18T09:35:07.679Z",
   "devdoc": {
     "author": "David Minarsch",
     "methods": {

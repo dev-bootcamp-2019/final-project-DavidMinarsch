@@ -82,7 +82,7 @@ class Header extends Component {
 }
 
 Header.propTypes = {
-  accounts: PropTypes.array.isRequired,
+  accounts: PropTypes.arrayOf(PropTypes.string).isRequired,
   network: PropTypes.string.isRequired,
 };
 

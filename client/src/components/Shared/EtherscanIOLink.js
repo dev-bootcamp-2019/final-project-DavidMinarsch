@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 
 const EtherscanIOLink = (props) => {
   const { hash, type, network } = props;
-  if (network !== 'rinkeby' && type === 'address') {
+  if (network === 'rinkeby' && type === 'address') {
     return (
       <a href={`https://${'rinkeby'}.etherscan.io/${type}/${hash}`} target="_blank" rel="noopener noreferrer">
         <button
@@ -15,19 +15,19 @@ const EtherscanIOLink = (props) => {
         </button>
       </a>
     );
-  } else if (network !== 'rinkeby' && type === 'tx') {
+  } else if (network === 'rinkeby' && type === 'ipfs') {
     return (
       <a href={`https://${'rinkeby'}.etherscan.io/${type}/${hash}`} target="_blank" rel="noopener noreferrer">
         <button
           className="button is-size-small is-rounded is-light"
           type="button"
         >
-          View this transaction on etherscan.io
+          View on etherscan.io
         </button>
       </a>
     );
   } else {
-    return <div>Loading Web3, accounts, and contract...</div>;
+    return <div />;
   }
 };
 

@@ -52,6 +52,7 @@ const resultAccountOne = await poe.getIdsForAddress.call(await web3.eth.getAccou
 eslint migrations/**
 eslint test/proofofexistence.js
 eslint client/src/App.js
+eslint src/App.js -c .eslintrc.js --fix
 solhint "contracts/**/*.sol"
 solhint "test/**/*.sol"
 myth -x contracts/ProofOfExistence.sol

@@ -27,7 +27,7 @@ const NetworkStatus = ({ network }) => {
         Network: <strong className="has-color-rinkeby">Rinkeby</strong>
       </div>
     );
-  } else if (network === 'unknown') {
+  } else if (network === 'localhost') {
     return (
       <div className="is-inline has-text-danger">
         Network: <strong className="has-color-localhost">Localhost</strong>
@@ -37,7 +37,6 @@ const NetworkStatus = ({ network }) => {
   return (<div />);
 };
 
-NetworkStatus.defaultProps = { network: null };
-NetworkStatus.propTypes = { network: PropTypes.string };
+NetworkStatus.propTypes = { network: PropTypes.string.isRequired };
 
 export default NetworkStatus;

@@ -5,13 +5,30 @@ import NetworkStatus from './NetworkStatus';
 
 
 class NetworkNotice extends Component {
-  componentDidMount() { }
+  constructor(props) {
+    super(props);
+    this.bindEventListeners = this.bindEventListeners.bind(this);
+  }
+
+  componentDidMount() {
+    this.bindEventListeners();
+  }
+
+
+  bindEventListeners() {
+    const modal = document.querySelector(".modal");
+    const button = document.querySelector(".delete.toggle-modal");
+    if (!(button === null)) {
+      button.addEventListener('click', function(){
+        modal.classList.toggle('is-active');
+      });
+    } 
+  }
 
   render() {
     const { network } = this.props;
 
-    //network === process.env.DEFAULT_NETWORK
-    if (true) { return (<div />); }
+    if ( network === 'rinkeby' || network === 'localhost') { return (<div />); }
 
     return (
       <div className="modal is-active">
@@ -19,8 +36,8 @@ class NetworkNotice extends Component {
         <div className="modal-content">
           <article className="message">
             <div className="message-header is-color-warning">
-              <p> Wrong network detected </p>
-              <button class="delete toggle-modal"></button>
+              <p> Notice </p>
+              <button className="delete toggle-modal" type="button" />
             </div>
             <div className="message-body">
               <div>
@@ -28,7 +45,8 @@ class NetworkNotice extends Component {
               </div>
               <div>
                 Please switch to
-                &nbsp;<NetworkStatus network={'rinkeby'} />&nbsp; to access the dapp.
+                &nbsp;<NetworkStatus network="rinkeby" />&nbsp; or 
+                &nbsp;<NetworkStatus network="localhost" />&nbsp; to access the dapp.
               </div>
               <br />
             </div>
@@ -40,8 +58,9 @@ class NetworkNotice extends Component {
 }
 
 
-NetworkNotice.defaultProps = { network: null };
-NetworkNotice.propTypes = { network: PropTypes.string };
+NetworkNotice.propTypes = { 
+  network: PropTypes.string.isRequired
+};
 
 
 export default NetworkNotice;

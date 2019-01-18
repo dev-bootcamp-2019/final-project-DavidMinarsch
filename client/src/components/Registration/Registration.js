@@ -8,19 +8,18 @@ import EtherscanIOLink from '../Shared/EtherscanIOLink';
 
 class Registration extends Component {
 
-  multihash2hash (digest) {
+  multiHashToIpfsHash (digest) {
     let hashFunction = "0x1220";// Hardcoded assumption
 
-    hashFunction = hashFunction.substr(2);
-    digest = digest.substr(2);
+    hashFunction = hashFunction.substr(2); // to remove "0x"
+    digest = digest.substr(2); // to remove "0x"
     return multihashes.toB58String(multihashes.fromHexString(hashFunction + digest));
   }
 
   render() {
     const { network, registration } = this.props;
-    const timestamp = parseInt(registration[2], 10) * 1000;
-    const digest = registration[1];
-    const txHash = registration[0];
+    const ipfsHash = this.multiHashToIpfsHash(registration[0]);
+    const timestamp = parseInt(registration[1], 10) * 1000;
 
     return (
       <div className="card">
@@ -32,14 +31,19 @@ class Registration extends Component {
         <div className="card-content">
           <div className="media">
             <div className="media-content">
-              <div className="is-size-5 has-text-weight-bold">
-                IPFS Hash: {this.multihash2hash(digest)}
+              <div className="is-size-6">
+                IPFS Hash:
+              </div>
+              <div className="is-size-7 has-text-weight-bold">
+                {ipfsHash.slice(0,22)}
+                <br />
+                {ipfsHash.slice(23,46)}
               </div>
               <br />
-              <EtherscanIOLink hash={txHash} type={'tx'} network={network} />
+              <EtherscanIOLink hash={ipfsHash} type='ipfs' network={network} />
               <br />
               <br />
-              <div className="is-size-6">
+              <div className="is-size-7">
                 Existence proven {moment.utc(timestamp).fromNow()}
               </div>
             </div>
@@ -52,7 +56,7 @@ class Registration extends Component {
 
 Registration.propTypes = {
   network: PropTypes.string.isRequired,
-  registration: PropTypes.array.isRequired,
+  registration: PropTypes.arrayOf(PropTypes.string).isRequired,
 };
 
 export default Registration;
