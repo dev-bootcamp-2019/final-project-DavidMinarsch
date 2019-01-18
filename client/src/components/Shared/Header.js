@@ -55,11 +55,6 @@ class Header extends Component {
                         Account: <strong>{accounts[0]}</strong>
                       </div>
                     </li>
-                    <li className="navbar-item">
-                      <div className="tag is-light">
-                        IPFS: <strong>{process.env.USE_LOCAL_IPFS === 'true' ? 'local node' : 'remote Infura gateway'}</strong>
-                      </div>
-                    </li>
                   </div>
                 </div>
               </div>

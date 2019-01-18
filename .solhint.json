@@ -6,6 +6,8 @@
       "avoid-sha3": "warn",
       "compiler-fixed": false,
       "indent": ["warn", 4],
-      "max-line-length": 99
+      "max-line-length": 99,
+      "payable-fallback": false,
+      "not-rely-on-time": false
     }
   }

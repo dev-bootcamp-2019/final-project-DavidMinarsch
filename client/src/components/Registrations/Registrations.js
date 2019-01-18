@@ -8,14 +8,14 @@ class Registrations extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      accounts: props.accounts,
-      contract: props.contract,
-      ids: props.ids,
-      lastLoadedIdsIndex: props.lastLoadedIdsIndex,
-      registrations: props.registrations,
-      allRegistrationsLoaded: props.allRegistrationsLoaded,
+      // accounts: props.accounts,
+      // contract: props.contract,
+      // ids: props.ids,
+      // lastLoadedIdsIndex: props.lastLoadedIdsIndex,
+      // registrations: props.registrations,
+      // allRegistrationsLoaded: props.allRegistrationsLoaded,
     };
-    this.getRegistrations = this.props.getRegistrations.bind(this);
+    // this.getRegistrations = this.getRegistrations.bind(this);
   }
 
   render() {
@@ -30,7 +30,7 @@ class Registrations extends Component {
     return (
       <div>
         <InfiniteScroll
-          state={this.props}
+          // state={this.props}
           key="registrations-scroll"
           dataLength={ids.length}
           next={getRegistrations}

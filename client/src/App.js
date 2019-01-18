@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { HashRouter, Route, Switch } from 'react-router-dom';
 import ProofOfExistenceContract from "./contracts/ProofOfExistence.json";
 import getWeb3 from "./utils/getWeb3";
+import 'bulma/css/bulma.css'
 
 import "./App.css";
 import PathNotFound from './components/Shared/PathNotFound';

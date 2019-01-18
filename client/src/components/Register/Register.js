@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import 'bulma/css/bulma.css'
 
 import multihashes from 'multihashes'
 import moment from 'moment';

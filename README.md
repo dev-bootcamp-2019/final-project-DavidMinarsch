@@ -1,31 +1,79 @@
 # final-project-DavidMinarsch
 
-## To run:
-Ensure Node.js version is aligned:
+## Style guide
+This project's solidity code follows:
+https://solidity.readthedocs.io/en/develop/style-guide.html
+
+## Setup:
+Go to root folder and ensure Node.js version is aligned:
 ```
 nvm install
 ```
+Install all dependencies for truffle:
+```
 
-Start ganache-cli test blockchain:
+```
+Install all dependencies for client:
+```
+cd client && npm install
+```
+
+## For development:
+1) Start a test blockchain (in deterministic mode: so it generates deterministic addresses based on a pre-defined mnemonic) with ganache:
 ```
 ganache-cli --deterministic
 ```
-In second terminal window start the dev-server
+2) In a second terminal window test contracts for expected behaviour:
+```
+truffle test
+```
+3) Migrate contracts onto the test blockchain:
+```
+truffle migrate
+```
+4) Test dapp:
+```
+cd client && npm test
+```
+5) Start the dev-server
 ```
 cd client && npm run start
 ```
-make sure MetaMask points to correct network
+6) Make sure MetaMask points to correct network and has your account loaded.
 
 
-All available commands:
+### Truffle console:
+You can interact with the deployed contracts directly via Truffle console:
+```
+const account = web3.eth.getAccounts().then(a => {return a[0];})
+const poe = await ProofOfExistence.at(ProofOfExistence.address)
+const count = await poe.count()
+const ids = await poe.getIdsForAddress.call(await web3.eth.getAccounts().then(a => {return a[0];}))
+```
 
-  Compile:              truffle compile
-  Migrate:              truffle migrate
-  Test contracts:       truffle test
-  Test dapp:            cd client && npm test
-  Run dev server:       cd client && npm run start
-  Build for production: cd client && npm run build
+### Linting:
+You can run a linting script (first make `lint_all` executable: `chmod +x lint_all`) which runs the common linters:
+```
+./lint_all
 
+```
+More linters (some with issues due to React/Zos setup):
+```
+myth -x contracts/ProofOfExistence.sol
+myth --truffle
+slither contracts/ProofOfExistence.sol
+```
+
+## For production:
+Build for production:
+```
+cd client && npm run build
+```
+
+### Deployment Steps
+
+
+##
 
   Create logic contract:
   zos add MyContract
@@ -41,37 +89,9 @@ All available commands:
 
 
 
-<!-- let proofOfExistence = ProofOfExistence.deployed().then(function(instance) { return instance; })
- -->
-web3.eth.getAccounts().then(a => {return a[0];})
-var poe = await ProofOfExistence.at(ProofOfExistence.address)
-let foo = await poe.count()
-poe.count()
-const resultAccountOne = await poe.getIdsForAddress.call(await web3.eth.getAccounts().then(a => {return a[0];}))
-```
-eslint migrations/**
-eslint test/proofofexistence.js
-eslint client/src/App.js
-eslint src/App.js -c .eslintrc.js --fix
-solhint "contracts/**/*.sol"
-solhint "test/**/*.sol"
-myth -x contracts/ProofOfExistence.sol
-myth --truffle
-slither .
-solium -d contracts/
-```
-
-## Style guide
-Follows:
-https://solidity.readthedocs.io/en/develop/style-guide.html
-
-## Run tests
-```
-truffle test
-```
 
 
-# Deployment Steps
+
 
 ## To IPFS
 
@@ -89,10 +109,7 @@ $ ipfs add -r public
 
 Guide:
 
-Create IPFS hash:
-https://github.com/saurfang/ipfs-multihash-on-solidity
-https://ethereum.stackexchange.com/questions/52824/convert-hash-function-hex-to-bytes32
-https://ethereum.stackexchange.com/questions/17094/how-to-store-ipfs-hash-using-bytes
+
 
 Access mobile cam from web app:
 https://stackoverflow.com/questions/8581081/how-to-access-a-mobiles-camera-from-a-web-app
