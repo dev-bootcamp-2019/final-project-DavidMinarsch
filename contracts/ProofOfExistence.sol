@@ -1,4 +1,4 @@
-pragma solidity >=0.4.24 <0.6.0;
+pragma solidity >=0.5.0 <0.6.0;
 
 import "../node_modules/zos-lib/contracts/Initializable.sol";
 
@@ -9,6 +9,7 @@ import "../node_modules/zos-lib/contracts/Initializable.sol";
 */
 contract ProofOfExistence is Initializable {
 
+    address payable public beneficiary;
     uint public count;
     mapping ( bytes32 => uint ) private hashToId;
     mapping ( address => uint[] ) private registrantToIds;
@@ -22,9 +23,26 @@ contract ProofOfExistence is Initializable {
     mapping ( uint => Registration ) private idToRegistration;
 
     event LogRegistration(bytes32 indexed _hash, address indexed _registrant, uint indexed _id);
+    event LogWithdrawal(address indexed _hash);
+    event LogForcefulDonation(uint indexed _balance);
 
-    // @dev Fallback to reject any ether sent to contract
-    function () external { revert("No ether to be sent to this contract."); }
+    // @dev Fallback to accept only ether sent to it forcefully.
+    function () external {
+        emit LogForcefulDonation(address(this).balance);
+    }
+
+    // @dev Function to withdraw ether sent forcefully to the contract for the beneficiary
+    function withdraw()
+        external
+    {
+        // We could check the beneficiary is calling this function; but if someone else calls 
+        // this function we don't have to pay the gas fee so we don't actually care.
+        // require(msg.sender == beneficiary, "Only the contract beneficiary can call this function.");
+
+        // Send the amount to the beneficiary
+        beneficiary.transfer(address(this).balance);
+        emit LogWithdrawal(msg.sender);
+    }
 
     /** @dev Function to register hash
       * @param _hash The IPFS hash.
@@ -40,6 +58,14 @@ contract ProofOfExistence is Initializable {
         registrantToIds[msg.sender].push(_id);
         idToRegistration[_id] = Registration(_hash, msg.sender, now);
         emit LogRegistration(_hash, msg.sender, _id);
+    }
+
+    // @dev Contract constructor: set beneficiary
+    function initialize ()
+        public
+        initializer
+    {
+        beneficiary = msg.sender;
     }
 
     /** @dev Function which returns all registration data given an id.
@@ -68,17 +94,6 @@ contract ProofOfExistence is Initializable {
         returns (bytes32 hash, address registrant, uint timestamp)
     {
         return getRegistrationForId(getIdForHash(_hash));
-    }
-
-    /** @dev Function which returns all ids for an account owner
-      * @return _ids Array of ids.
-    */
-    function getIds()
-        public
-        view
-        returns (uint[] memory _ids)
-    {
-        return registrantToIds[msg.sender];
     }
 
     /** @dev Function which returns all ids for an address

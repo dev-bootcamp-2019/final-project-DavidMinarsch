@@ -2,15 +2,12 @@ module.exports = {
   "extends": [
     "airbnb",
     "eslint:recommended",
-    "plugin:react/recommended"
   ],
   "plugins": [
-    "react",
     "import"
   ],
   "rules": {
     "arrow-body-style": "off",
-    "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }],
     "no-console": "off",
     "no-multi-spaces": "off",
     "no-underscore-dangle": "off",

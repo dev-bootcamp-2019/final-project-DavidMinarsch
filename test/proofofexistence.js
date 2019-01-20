@@ -67,6 +67,7 @@ contract('ProofOfExistence', (accounts) => {
         SAMPLE_HASH_THREE,
         { from: ACCOUNT_TWO, gasThree },
       );
+
     });
   });
 
@@ -148,7 +149,7 @@ contract('ProofOfExistence', (accounts) => {
       });
     };
 
-    it('...should reject any ether sent to the contract.', async () => {
+    it('...should accept no ether sent to the contract.', async () => {
       try {
         const initialBalance = await getBalancePromise(proofOfExistence.address);
         sendTransactionPromise({
@@ -158,10 +159,8 @@ contract('ProofOfExistence', (accounts) => {
           data: 10e18,
         }).catch(() => {});
         const currentBalance = await getBalancePromise(proofOfExistence.address);
-        assert.equal(initialBalance, currentBalance, 'Balance increased when it should not.');
-      } catch (err) {
-        assert.equal(err.message.includes('revert'), true, 'It did not revert as expected.');
-      }
+        assert.equal(initialBalance, currentBalance, 'Balance increased by right amount.');
+      } catch (err) { assert.equal(err.message.includes('revert'), true, 'Does not revert on ether being sent.'); }
     });
   });
 });

@@ -156,7 +156,7 @@ class Register extends Component {
           <br />
           <br />
           <button
-            className={`button is-warning ${buttonLoading ? 'is-loading' : ''}`}
+            className={`button is-info ${buttonLoading ? 'is-loading' : ''}`}
             onClick={this.createHash}
             type="submit"
           >

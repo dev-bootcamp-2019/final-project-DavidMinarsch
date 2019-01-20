@@ -1,5 +1,6 @@
 .DS_Store
+.env
 node_modules/
 client/node_modules/
-client/public/images/
+client/build
 .zos.session
