@@ -67,7 +67,7 @@ class App extends Component {
 
   async onLoad() {
     // Gets all ids for default account
-    const ids = await this.getIds();
+    const ids = await this.getIdsForUser();
     this.setState({ ids });
 
     // Get first set of registrations for default account
@@ -75,7 +75,7 @@ class App extends Component {
     this.setState({ registrations, lastLoadedIdsIndex, allRegistrationsLoaded });
   }
 
-  async getIds() {
+  async getIdsForUser() {
     const { accounts, contract } = this.state;
     const newIds = await contract.methods.getIdsForAddress(accounts[0]).call();
     return newIds;
