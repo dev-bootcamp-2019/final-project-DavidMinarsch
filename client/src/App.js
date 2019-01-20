@@ -46,7 +46,7 @@ class App extends Component {
         }
       })(networkId);
       const deployedNetwork = ProofOfExistenceContract.networks[networkId];
-
+      
       // Get the contract instance.
       const instance = new web3.eth.Contract(
         ProofOfExistenceContract.abi,

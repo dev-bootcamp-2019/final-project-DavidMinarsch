@@ -29,7 +29,7 @@ class Header extends Component {
 
     return (
       <div>
-        <section className="hero is-warning is-small">
+        <section className="hero is-primary is-small">
           <div className="hero-head">
             <nav className="navbar">
               <div className="container">

@@ -4,17 +4,19 @@ echo "------------STARTING: eslint on migrations" \
 && echo "------------STARTING: eslint on test" \
 && eslint test/proofofexistence.js -c .eslintrc.js --fix \
 && echo "------------STARTING: eslint on client" \
-&& eslint client/src/App.js -c client/.eslintrc.js --fix \
-&& eslint client/src/utils/getWeb3.js -c client/.eslintrc.js --fix \
-&& eslint client/src/components/Register/ipfs.js -c client/.eslintrc.js --fix \
-&& eslint client/src/components/Register/Register.js -c client/.eslintrc.js --fix \
-&& eslint client/src/components/Registration/Registration.js -c client/.eslintrc.js --fix \
-&& eslint client/src/components/Registrations/Registrations.js -c client/.eslintrc.js --fix \
-&& eslint client/src/components/Shared/EtherscanIOLink.js -c client/.eslintrc.js --fix \
-&& eslint client/src/components/Shared/Header.js -c client/.eslintrc.js --fix \
-&& eslint client/src/components/Shared/NetworkNotice.js -c client/.eslintrc.js --fix \
-&& eslint client/src/components/Shared/NetworkStatus.js -c client/.eslintrc.js --fix \
-&& eslint client/src/components/Shared/PathNotFound.js -c client/.eslintrc.js --fix \
+&& cd client \
+&& eslint src/App.js -c .eslintrc.js --fix \
+&& eslint src/utils/getWeb3.js -c .eslintrc.js --fix \
+&& eslint src/components/Register/ipfs.js -c .eslintrc.js --fix \
+&& eslint src/components/Register/Register.js -c .eslintrc.js --fix \
+&& eslint src/components/Registration/Registration.js -c .eslintrc.js --fix \
+&& eslint src/components/Registrations/Registrations.js -c .eslintrc.js --fix \
+&& eslint src/components/Shared/EtherscanIOLink.js -c .eslintrc.js --fix \
+&& eslint src/components/Shared/Header.js -c .eslintrc.js --fix \
+&& eslint src/components/Shared/NetworkNotice.js -c .eslintrc.js --fix \
+&& eslint src/components/Shared/NetworkStatus.js -c .eslintrc.js --fix \
+&& eslint src/components/Shared/PathNotFound.js -c .eslintrc.js --fix \
+&& cd .. \
 && echo "------------STARTING: solhint on contracts" \
 && solhint "contracts/**/*.sol" \
 && echo "------------STARTING: solhint on test" \
