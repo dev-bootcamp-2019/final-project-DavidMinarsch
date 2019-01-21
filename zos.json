@@ -1,8 +1,0 @@
-{
-  "zosversion": "2",
-  "name": "final-project-DavidMinarsch",
-  "version": "0.1.0",
-  "contracts": {
-    "ProofOfExistence": "ProofOfExistence"
-  }
-}

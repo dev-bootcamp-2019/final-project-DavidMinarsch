@@ -11,7 +11,7 @@ module.exports = {
   contracts_build_directory: path.join(__dirname, "client/src/contracts"),
   compilers: {
     solc: {
-      version: "0.5.0",    // Fetch exact version from solc-bin (default: truffle's version)
+      version: "0.5.2",    // Fetch exact version from solc-bin (default: truffle's version)
       settings: {          // See the solidity docs for advice about optimization and evmVersion
         optimizer: {
           enabled: true,

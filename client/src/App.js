@@ -83,9 +83,10 @@ class App extends Component {
 
   async getRegistrations() {
     const { accounts, ids, contract, lastLoadedIdsIndex, registrations } = this.state;
+    const defaultNumberRegistrations = 12;
     let newRegistrations = [];
     let allRegistrationsLoaded = false;
-    for (let i = lastLoadedIdsIndex; i < lastLoadedIdsIndex + 8; i += 1) {
+    for (let i = lastLoadedIdsIndex; i < lastLoadedIdsIndex + defaultNumberRegistrations; i += 1) {
       try {
         const registration = await contract.methods.getRegistrationForId(ids[i]).call();
         if (registration.hash === '') throw new Error('Registration does not exist.');
