@@ -78,31 +78,34 @@ rm -rf client/src/contracts/*
 1) Start a test blockchain (in deterministic mode: so it generates deterministic addresses based on a pre-defined mnemonic) with ganache:
 ```
 ganache-cli --deterministic
+
 ```
-Take the first account address listed and add it to a .env file under OWNER_ADDRESS
+Take the first account address listed and add it to a .env file under DEPLOYER_ADDRESS
 ```
-export OWNER_ADDRESS=0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1
+export DEPLOYER_ADDRESS=0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1
 ```
-Take the second account address listed and add it to the same .env file under DEPLOY_ADDRESS
+Take the second and third account address listed and add it to the same .env file under BENEFICIARY_ADDRESS and PAUSER_ADDRESS
 ```
-export DEPLOY_ADDRESS=0xffcf8fdee72ac11b5c542428b35eef5769c409f0
+export BENEFICIARY_ADDRESS=0xffcf8fdee72ac11b5c542428b35eef5769c409f0
+export PAUSER_ADDRESS=0x22d491bde2303f2f43325b2108d26f1eaba1e32b
 ```
 Note, to send transactions to the contract we MUST use a different address than the one which was used to deploy the contract (read more on this at ZeppelinOS).
 
-2) In a second terminal window test contracts for expected behaviour:
-```
-npx truffle test
-```
 
-3) Compile and add the contracts to zeppelin os project:
+2) In a second terminal window compile and add the contracts to zeppelin os project:
 ```
 npx zos add ProofOfExistence
+```
+
+3) Test contracts for expected behaviour:
+```
+NODE_ENV=test npx truffle test
 ```
 
 4) Migrate contracts onto the test blockchain :
 a) First, create a session:
 ```
-npx zos session --network development --from $DEPLOY_ADDRESS --expires 3600
+npx zos session --network development --from $DEPLOYER_ADDRESS --expires 3600
 ```
 b) Second, create/deploy logic contract:
 ```
@@ -110,7 +113,7 @@ npx zos push
 ```
 c) Third, create first usable upgradeable instance (proxy) of ProofOfExistence contract:
 ```
-npx zos create ProofOfExistence --init initialize --args $DEPLOY_ADDRESS,$OWNER_ADDRESS
+npx zos create ProofOfExistence --init initialize --args $BENEFICIARY_ADDRESS,$PAUSER_ADDRESS
 ```
 Optional: Take note of the instance address in case you want to interact with the contract via Truffle console (`truffle console`), like so:
 ```
@@ -137,7 +140,10 @@ cd client && npm run start
 ```
 NOTE: there remain some issues with the contract instance not being maintained in react's state. Due to my limited experience I was unable to fix this.
 
-7) Make sure MetaMask points to correct network and has your account loaded.
+7) Make sure MetaMask points to correct network and has your account loaded. This MUST be an account different to the first one (see above for why), I suggest taking the last one with private key:
+```
+0xb0057716d5917badaf911b193b12b910811c1497b5bada8d7711f758981c3773
+```
 
 
 ### Pausing the contract:
@@ -160,6 +166,7 @@ proofOfExistence.paused()
 ```
 4) Unpause the contract again:
 ```
+proofOfExistence.unpaused()
 ```
 
 ### Upgrading the contract using ZeppelinOS:
