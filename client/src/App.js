@@ -19,11 +19,14 @@ class App extends Component {
             accounts: null,
             contract: null,
             network: null,
+            networkId: null,
             ids: [],
             registrations: [],
             allRegistrationsLoaded: false,
             lastLoadedIdsIndex: 0
     };
+    this.bindMetamaskEventListeners = this.bindMetamaskEventListeners.bind(this);
+    this.updateData = this.updateData.bind(this);
   }
 
   async componentDidMount() {
@@ -45,17 +48,23 @@ class App extends Component {
           default: return 'localhost';
         }
       })(networkId);
-      const deployedNetwork = ProofOfExistenceContract.networks[networkId];
+      const deployedNetwork = await ProofOfExistenceContract.networks[networkId];
       
+      const abi = await ProofOfExistenceContract.abi;
       // Get the contract instance.
       const instance = new web3.eth.Contract(
-        ProofOfExistenceContract.abi,
+        abi,
         deployedNetwork && deployedNetwork.address,
       );
+      // let proofOfExistence = await contract(ProofOfExistenceContract);
+      // proofOfExistence.setProvider(web3);
+
+      // const c = await contract.methods.beneficiary().call({from: accounts[0]});
+      //const d = await proofOfExistence.beneficiary({from: accounts[0] });
 
       // Set web3, accounts, and contract to the state, and then proceed with 
       // loading the account related registrations.
-      this.setState({ web3, accounts, contract: instance, network }, this.onLoad);
+      this.setState({ web3, accounts, contract: instance, network, networkId }, this.onLoad);
     } catch (error) {
       // Catch any errors for any of the above operations.
       alert(
@@ -67,17 +76,17 @@ class App extends Component {
 
   async onLoad() {
     // Gets all ids for default account
-    const ids = await this.getIdsForUser();
+    const ids = await this.getIds();
     this.setState({ ids });
 
     // Get first set of registrations for default account
     const [registrations, lastLoadedIdsIndex, allRegistrationsLoaded] = await this.getRegistrations();
-    this.setState({ registrations, lastLoadedIdsIndex, allRegistrationsLoaded });
+    this.setState({ registrations, lastLoadedIdsIndex, allRegistrationsLoaded }, this.bindMetamaskEventListeners);
   }
 
-  async getIdsForUser() {
+  async getIds() {
     const { accounts, contract } = this.state;
-    const newIds = await contract.methods.getIdsForAddress(accounts[0]).call();
+    const newIds = await contract.methods.getIdsForAddress(accounts[0]).call({ from: accounts[0] });
     return newIds;
   }
 
@@ -88,7 +97,7 @@ class App extends Component {
     let allRegistrationsLoaded = false;
     for (let i = lastLoadedIdsIndex; i < lastLoadedIdsIndex + defaultNumberRegistrations; i += 1) {
       try {
-        const registration = await contract.methods.getRegistrationForId(ids[i]).call();
+        const registration = await contract.methods.getRegistrationForId(ids[i]).call({ from: accounts[0] });
         if (registration.hash === '') throw new Error('Registration does not exist.');
         if (registration.registrant !== accounts[0]) throw new Error('Registration belongs to a different account.');
         newRegistrations.push([registration.hash, registration.timestamp]); //ensure we find transaction hash here too!
@@ -98,6 +107,27 @@ class App extends Component {
       }
     }
     return [registrations.concat(newRegistrations), lastLoadedIdsIndex + newRegistrations.length, allRegistrationsLoaded];
+  }
+
+  bindMetamaskEventListeners() {
+    const { web3 } = this.state;
+    const callback = (function (response) {
+      let { web3, accounts, networkId } = this.state;
+      if (parseInt(response.networkVersion) !== networkId) {
+        window.location.reload();
+      } else if (web3.utils.toChecksumAddress(response.selectedAddress) !== accounts[0]) {
+        window.location.reload();
+        // accounts[0] = response.selectedAddress;
+        // this.setState({ accounts });
+        // this.onLoad();
+      }
+    }).bind(this);
+
+    web3.currentProvider.publicConfigStore.on('update', callback);
+  }
+
+  updateData() {
+    this.onLoad();
   }
 
   render() {
@@ -118,6 +148,7 @@ class App extends Component {
                   <Header {...this.state} />
                   <Register
                     {...this.state}
+                    updateData={this.updateData}
                   />
                   <Registrations
                     {...this.state}

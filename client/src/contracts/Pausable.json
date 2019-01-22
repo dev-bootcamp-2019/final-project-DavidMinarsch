@@ -2139,8 +2139,8 @@
     "version": "0.5.2+commit.1df8f40c.Emscripten.clang"
   },
   "networks": {},
-  "schemaVersion": "3.0.1",
-  "updatedAt": "2019-01-21T16:50:31.916Z",
+  "schemaVersion": "3.0.0",
+  "updatedAt": "2019-01-22T18:54:04.802Z",
   "devdoc": {
     "details": "Base contract which allows children to implement an emergency stop mechanism.",
     "methods": {

@@ -22,7 +22,7 @@ The app is deployed on the Rinkeby test net and served from IPFS at:
 This project's solidity code follows:
 https://solidity.readthedocs.io/en/develop/style-guide.html
 
-## Setup:
+## Development setup:
 Go to root folder and ensure Node.js version is aligned:
 ```
 nvm install
@@ -35,38 +35,6 @@ Install all dependencies for client development:
 ```
 cd client && npm install
 ```
-
-## For development (non-upgradable route):
-0)
-Delete all historic compiled contracts:
-```
-rm -rf client/src/contracts/*
-```
-1) Start a test blockchain (in deterministic mode: so it generates deterministic addresses based on a pre-defined mnemonic) with ganache:
-```
-ganache-cli --deterministic
-```
-2) In a second terminal window test contracts for expected behaviour:
-```
-truffle test
-```
-3) Compile contracts:
-```
-truffle compile
-```
-4) Migrate contracts onto the test blockchain:
-```
-truffle migrate
-```
-5) Test dapp:
-```
-cd client && npm test
-```
-6) Start the dev-server
-```
-cd client && npm run start
-```
-7) Make sure MetaMask points to correct network and has your account loaded.
 
 ## For development (upgradable route utilizing Zeppelin-OS)
 0)
@@ -86,8 +54,8 @@ export DEPLOYER_ADDRESS=0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1
 ```
 Take the second and third account address listed and add it to the same .env file under BENEFICIARY_ADDRESS and PAUSER_ADDRESS
 ```
-export BENEFICIARY_ADDRESS=0xffcf8fdee72ac11b5c542428b35eef5769c409f0
-export PAUSER_ADDRESS=0x22d491bde2303f2f43325b2108d26f1eaba1e32b
+export BENEFICIARY_ADDRESS=0xFFcf8FDEE72ac11b5c542428B35EEF5769C409f0
+export PAUSER_ADDRESS=0x22d491Bde2303f2f43325b2108D26f1eAbA1e32b
 ```
 Note, to send transactions to the contract we MUST use a different address than the one which was used to deploy the contract (read more on this at ZeppelinOS).
 
@@ -119,16 +87,17 @@ Optional: Take note of the instance address in case you want to interact with th
 ```
 const proofOfExistence = await ProofOfExistence.at('<your-contract-address>')
 ```
-or, simpler still:
+or
 ```
-const proofOfExistence = await ProofOfExistence.at(ProofOfExistence.address)
+const networkId = await web3.eth.net.getId()
+const address = await ProofOfExistence.networks[networkId].address
+const proofOfExistence = await ProofOfExistence.at(address)
 ```
 Then confirm the beneficiary equals the deployer address set above:
 ```
-const beneficiary = await proofOfExistence.beneficiary()
-const owner_address = await web3.eth.getAccounts().then(a => {return a[0];})
-const deployer_address = await web3.eth.getAccounts().then(a => {return a[1];})
-beneficiary === deployer_address
+const beneficiary_address = await web3.eth.getAccounts().then(a => {return a[1];})
+const beneficiary = await proofOfExistence.beneficiary({from: beneficiary_address })
+beneficiary === beneficiary_address
 ```
 5) Test dapp:
 ```
@@ -138,13 +107,11 @@ cd client && npm test
 ```
 cd client && npm run start
 ```
-NOTE: there remain some issues with the contract instance not being maintained in react's state. Due to my limited experience I was unable to fix this.
 
-7) Make sure MetaMask points to correct network and has your account loaded. This MUST be an account different to the first one (see above for why), I suggest taking the last one with private key:
+7) Make sure MetaMask points to correct network AND has your account loaded. This MUST be an account different to the first one listed in Ganache (see above for why), I suggest taking the last one with private key:
 ```
 0xb0057716d5917badaf911b193b12b910811c1497b5bada8d7711f758981c3773
 ```
-
 
 ### Pausing the contract:
 Before continuing have a look at design_pattern_decisions.md to read about the Emergency Stop Pattern there.
@@ -153,20 +120,26 @@ Before continuing have a look at design_pattern_decisions.md to read about the E
 ```
 const proofOfExistence = await ProofOfExistence.at('<your-contract-address>')
 ```
+or
+```
+const networkId = await web3.eth.net.getId()
+const address = await ProofOfExistence.networks[networkId].address
+const proofOfExistence = await ProofOfExistence.at(address)
+```
 2) Confirm the onwer has the Pauser role and the contract is not paused:
 ```
-const owner_address = await web3.eth.getAccounts().then(a => {return a[0];})
-proofOfExistence.isPauser(owner_address)
-proofOfExistence.paused()
+const pauser_address = await web3.eth.getAccounts().then(a => {return a[2];})
+proofOfExistence.isPauser(pauser_address, {from: pauser_address})
+proofOfExistence.paused({from: pauser_address})
 ```
 3) Pause the contract (only the owner can do so):
 ```
-proofOfExistence.pause({from: owner_address})
-proofOfExistence.paused()
+proofOfExistence.pause({from: pauser_address})
+proofOfExistence.paused({from: pauser_address})
 ```
 4) Unpause the contract again:
 ```
-proofOfExistence.unpaused()
+proofOfExistence.unpaused({from: pauser_address})
 ```
 
 ### Upgrading the contract using ZeppelinOS:
@@ -198,15 +171,6 @@ const lastTimestamp = await proofOfExistence.lastTimestamp()
 Source:
 https://docs.zeppelinos.org/docs/upgrading.html
 
-### Using truffle console:
-You can interact with the deployed contracts directly via Truffle console:
-```
-const account = web3.eth.getAccounts().then(a => {return a[0];})
-const proofOfExistence = await ProofOfExistence.at(ProofOfExistence.address)
-const count = await proofOfExistence.count()
-const ids = await proofOfExistence.getIdsForAddress.call(await web3.eth.getAccounts().then(a => {return a[0];}))
-```
-
 ### Linting:
 You can run a linting script (first make `lint_all` executable: `chmod +x lint_all`) which runs the common linters:
 ```
@@ -225,23 +189,59 @@ Build for production:
 ```
 cd client && npm run build
 ```
+Then to serve run:
+```
+serve -s build
+```
 
 ### Deployment to IPFS
 
-1. Change environment variable to `production`
-
-2. Check webpack to make sure all compression settings are correct
-
-3. Run
+1. Run
 ```
-$ ipfs daemon
-# and
-$ ipfs add -r public
+$ ipfs init
+$ ipfs add -r build
 ```
+
+https://medium.com/elbstack/decentralized-hosting-of-a-static-react-app-with-ipfs-aae11b860f5e
 
 ### Known issues:
 Due to my limited React knowledge the current app won't properly load all registrations if a user has more than 12 (i.e. the first set of) registrations. This is a React only issue and as such not part of the scope of this project.
 
+## For development (non-upgradable route):
+Note: This deploys the contract without initializing it. When using ZeppelinOS contract initialization is handled with an initialize() function rather than a constructor(), hence `truffle migrate` does not pick up on the initialization. This contract will not be upgradeable (logic and storage are not separated).
+
+0)
+Delete all historic compiled contracts:
+```
+rm -rf client/src/contracts/*
+```
+1) Start a test blockchain (in deterministic mode: so it generates deterministic addresses based on a pre-defined mnemonic) with ganache:
+```
+ganache-cli --deterministic
+```
+2) In a second terminal window test contracts for expected behaviour:
+```
+truffle test
+```
+3) Compile contracts:
+```
+truffle compile
+```
+4) Migrate contracts onto the test blockchain:
+```
+truffle migrate
+```
+5) Test dapp:
+```
+cd client && npm test
+```
+6) Start the dev-server
+```
+cd client && npm run start
+```
+7) Make sure MetaMask points to correct network AND has your account loaded.
+
+## Sources
 Access mobile cam from web app:
 https://stackoverflow.com/questions/8581081/how-to-access-a-mobiles-camera-from-a-web-app
 https://www.html5rocks.com/en/tutorials/getusermedia/intro/

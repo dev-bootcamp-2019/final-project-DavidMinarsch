@@ -1,8 +1,8 @@
-const zos = require('zos');
+// const zos = require('zos');
 const ProofOfExistence = artifacts.require('../contracts/ProofOfExistence.sol');
 
 contract('ProofOfExistence', (accounts) => {
-  const DEPLOYER_ADDRESS = accounts[0];
+  // const DEPLOYER_ADDRESS = accounts[0];
   const BENEFICIARY_ADDRESS = accounts[1];
   const PAUSER_ADDRESS = accounts[2];
   const USER_ADDRESS = accounts[9];
@@ -161,17 +161,44 @@ contract('ProofOfExistence', (accounts) => {
           data: 10e18,
         }).catch(() => {});
         const currentBalance = await getBalancePromise(proofOfExistence.address);
-        assert.equal(initialBalance, currentBalance, 'Balance increased by right amount.');
+        assert.equal(initialBalance, currentBalance, 'Balance increased when it should not.');
       } catch (err) { assert.equal(err.message.includes('revert'), true, 'Does not revert on ether being sent.'); }
     });
   });
 
-  describe('ZOS upgradeability', () => {
-    it('...should create a proxy', async function () {
-      const project = await zos.TestHelper({ from: DEPLOYER_ADDRESS });
-      const proxy = await project.createProxy(ProofOfExistence, { initMethod: 'initialize', initArgs: [BENEFICIARY_ADDRESS,PAUSER_ADDRESS], initFrom: DEPLOYER_ADDRESS});
-      const result = await proxy.beneficiary();
-      assert.equal(result, BENEFICIARY_ADDRESS, 'Returns incorrect beneficiary.');
-    });
-  });
+  // describe('ZOS upgradeability', () => {
+  //   it('...should create a proxy', async function () {
+  //     const project = await zos.TestHelper({ from: DEPLOYER_ADDRESS });
+  //     const proxy = await project.createProxy(ProofOfExistence, { initMethod: 'initialize', initArgs: [BENEFICIARY_ADDRESS,PAUSER_ADDRESS], initFrom: DEPLOYER_ADDRESS});
+  //     const result = await proxy.beneficiary();
+  //     assert.equal(result, BENEFICIARY_ADDRESS, 'Returns incorrect beneficiary.');
+  //   });
+  // });
 });
+
+
+// contract TestProofOfExistence {string(abi.encodePacked("The beneficiary was not set correctly.", "_" ,msg.sender, "_", beneficiary, "_", DeployedAddresses.ProofOfExistence()))
+
+//     ProofOfExistence public proofOfExistenceDeployed = ProofOfExistence(DeployedAddresses.ProofOfExistence());
+//     ProofOfExistence public proofOfExistenceCreated = new ProofOfExistence(msg.sender, msg.sender);
+
+//     function testContractWasDeployed() public {
+//         address payable beneficiary = proofOfExistenceDeployed.beneficiary();
+//         Assert.equal(beneficiary, msg.sender, "The beneficiary was not set correctly.");
+//     }
+    
+//     function testBeneficiaryCanWithdrawFunds() public {
+//         address payable beneficiary = proofOfExistenceCreated.beneficiary();
+//         uint startBalance = beneficiary.balance;
+//         uint expectedWithdrawAmount = address(proofOfExistenceCreated).balance;
+
+//         proofOfExistenceCreated.withdraw();
+
+//         // prevent overflow
+//         uint256 expectedTotal = startBalance + expectedWithdrawAmount;
+//         require(expectedTotal >= startBalance, "Overflow occured, check the code!");
+        
+
+//         Assert.equal(beneficiary.balance, expectedTotal, "The withdraw function does not work as expected.");
+//     }
+// }
