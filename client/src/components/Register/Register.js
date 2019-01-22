@@ -60,7 +60,7 @@ class Register extends Component {
         if (err) console.error(err);
         this.setState({ipfsHash: ipfsHash[0].hash});
         const { accounts, contract } = this.state;
-        this.registerOrRetrieveHash( ipfsHash[0].hash, accounts[0], contract);
+        this.registerOrRetrieveHash( ipfsHash[0].hash, accounts, contract);
       });
     };    
   }
@@ -74,19 +74,19 @@ class Register extends Component {
     });
   }
 
-  async registerOrRetrieveHash(_ipfsHash, _account, _contract) {
-    const multiHash = this.ipfsHashToMultiHash(_ipfsHash)
-    const registration = await this.checkHashIsNotRegistered(multiHash.digest, _contract);
+  async registerOrRetrieveHash(_ipfsHash, _accounts, _contract) {
+    const multiHash = await this.ipfsHashToMultiHash(_ipfsHash)
+    const registration = await this.checkHashIsNotRegistered(multiHash.digest, _accounts, _contract);
     if (registration.hash === "0x0000000000000000000000000000000000000000000000000000000000000000") {
-      this.registerHash(multiHash.digest, _account, _contract);
+      this.registerHash(multiHash.digest, _accounts, _contract);
     } else {
       this.setState({account: registration.registrant});
       this.updateError(`The existence of this file was already proven ${moment.utc(parseInt(registration.timestamp, 10) * 1000).fromNow()} by account ${registration.registrant}.`)
     }
   }
 
-  async checkHashIsNotRegistered(_multiHash, _contract) {
-    return _contract.methods.getRegistrationForHash(_multiHash).call().catch(e => this.updateError(e.message));
+  async checkHashIsNotRegistered(_multiHash, _accounts, _contract) {
+    return _contract.methods.getRegistrationForHash(_multiHash).call({ from: _accounts[0] }).catch(e => this.updateError(e.message));
   }
 
   ipfsHashToMultiHash (_ipfsHash) {
@@ -98,24 +98,26 @@ class Register extends Component {
     };
   }
 
-  async registerHash(_multiHash, _account, _contract) {
-    await this.sendTransaction(_multiHash, _account, _contract, (err, txHash) => {
+  async registerHash(_multiHash, _accounts, _contract) {
+    await this.sendTransaction(_multiHash, _accounts, _contract, (err, txHash) => {
       if (err) return this.updateError(err.message);
+      const { updateData } = this.props;
+      updateData();
       return this.setState({ txHash, success: true, buttonLoading: false });
     }).catch(e => this.updateError(e.message));
   }
 
-  async sendTransaction(_ipfsHash, _account, _contract, callback) {
+  async sendTransaction(_ipfsHash, _accounts, _contract, callback) {
     const gasCushion = 1.2;
     const safeGasLimit = 2e5;
     const gasEstimate = await _contract.methods
       .registerHash(_ipfsHash)
-      .estimateGas({ from: _account })
+      .estimateGas({ from: _accounts[0] })
       .catch(console.error);
     return _contract.methods
       .registerHash(_ipfsHash)
       .send({
-        from: _account,
+        from: _accounts[0],
         gas: gasEstimate ? Math.floor(gasEstimate * gasCushion) : safeGasLimit,
       }, callback);
   }
@@ -196,6 +198,7 @@ class Register extends Component {
 Register.propTypes = {
   accounts: PropTypes.arrayOf(PropTypes.string).isRequired,
   contract: PropTypes.objectOf(PropTypes.object).isRequired,
+  updateData: PropTypes.func.isRequired,
 };
 
 export default Register;

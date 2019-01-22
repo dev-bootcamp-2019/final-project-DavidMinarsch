@@ -1,26 +1,29 @@
 pragma solidity >=0.5.0 <0.6.0;
 
-import "../node_modules/zos-lib/contracts/Initializable.sol";
+import "zos-lib/contracts/Initializable.sol";
+import "../installed_contracts/lifecycle/Pausable.sol";
 
 
 /** @title ProofOfExistence
   * @author David Minarsch
   * @notice A contract to register hashes of data as a proof of existence of the data at a given point in time.
 */
-contract ProofOfExistence is Initializable {
+contract ProofOfExistence is Initializable, Pausable {
 
     address payable public beneficiary;
     uint public count;
     mapping ( bytes32 => uint ) private hashToId;
     mapping ( address => uint[] ) private registrantToIds;
-
+    
     struct Registration {
         bytes32 hash;
         address registrant;
         uint timestamp;
     }
-
+    
     mapping ( uint => Registration ) private idToRegistration;
+    // Do not change above variable declarations during contract upgrades.
+    // All new variables introduced during contract upgrades must be declared below!
 
     event LogRegistration(bytes32 indexed _hash, address indexed _registrant, uint indexed _id);
     event LogWithdrawal(address indexed _hash);
@@ -35,22 +38,22 @@ contract ProofOfExistence is Initializable {
     function withdraw()
         external
     {
-        // We could check the beneficiary is calling this function; but if someone else calls 
-        // this function we don't have to pay the gas fee so we don't actually care.
-        // require(msg.sender == beneficiary, "Only the contract beneficiary can call this function.");
+        // We could check the beneficiary is calling this function; but we could also not since if someone else 
+        // calls this function we don't have to pay the gas fee so we might not actually care.
+        require(msg.sender == beneficiary, "Only the contract beneficiary can call this function.");
 
         // Send the amount to the beneficiary
         beneficiary.transfer(address(this).balance);
         emit LogWithdrawal(msg.sender);
     }
 
-    /** @dev Function to register hash
+    /** @dev Pausable function to register hash
       * @param _hash The IPFS hash.
     */
     function registerHash(bytes32 _hash) 
         external
+        whenNotPaused()
     {
-        // require (isValidHash(_hash));
         require(isNotRegistered(_hash), "This hash is already registered.");
         count += 1;
         uint _id = count;
@@ -60,12 +63,18 @@ contract ProofOfExistence is Initializable {
         emit LogRegistration(_hash, msg.sender, _id);
     }
 
-    // @dev Contract constructor: set beneficiary
-    function initialize ()
+    /** @dev Contract constructor (replacing standard Solidity constructor in adherence to
+        ZeppelinOS guidelines) to set beneficiary
+      * @param _beneficiary The beneficiary of the contract.
+      * @param _pauser The pauser of the contract.
+    */
+    function initialize (address payable _beneficiary, address _pauser)
         public
         initializer
     {
-        beneficiary = msg.sender;
+        require(_beneficiary != address(0), "Cannot add zero address.");
+        Pausable.initialize(_pauser);
+        beneficiary = _beneficiary;
     }
 
     /** @dev Function which returns all registration data given an id.

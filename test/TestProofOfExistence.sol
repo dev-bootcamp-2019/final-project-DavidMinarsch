@@ -6,21 +6,21 @@ import "../contracts/ProofOfExistence.sol";
 
 
 contract TestProofOfExistence {
+    ProofOfExistence public proofOfExistenceDeployed = ProofOfExistence(DeployedAddresses.ProofOfExistence());
 
-    ProofOfExistence public proofOfExistence = ProofOfExistence(DeployedAddresses.ProofOfExistence());
+    function testContractWasDeployedWithoutInitialization() public {
+        address payable beneficiary = proofOfExistenceDeployed.beneficiary();
+        address payable zeroAddress = 0x0000000000000000000000000000000000000000;
+        // We expect the contract to be deployed but not initialized
+        // (as deployment here happens via Truffle, not zos):
+        require(beneficiary == zeroAddress, "Deployment did cause initialization."); // string(abi.encodePacked(toString(msg.sender), toString(beneficiary)))
+    }
 
-    function testBeneficiaryCanWithdrawFunds() public {
-        address payable beneficiary = proofOfExistence.beneficiary();
-        uint startBalance = beneficiary.balance;
-        uint expectedWithdrawAmount = address(proofOfExistence).balance;
-
-        proofOfExistence.withdraw();
-
-        // prevent overflow
-        uint256 expectedTotal = startBalance + expectedWithdrawAmount;
-        require(expectedTotal >= startBalance, "Overflow occured, check the code!");
-        
-
-        Assert.equal(beneficiary.balance, expectedTotal, "The withdraw function does not work as expected.");
+    function toString(address x) internal pure returns (string memory) {
+        bytes memory b = new bytes(20);
+        for (uint i = 0; i < 20; i++)
+            b[i] = byte(uint8(uint(x) / (2**(8*(19 - i)))));
+        return string(b);
     }
 }
+

@@ -19,8 +19,10 @@ echo "------------STARTING: eslint on migrations" \
 && cd .. \
 && echo "------------STARTING: solhint on contracts" \
 && solhint "contracts/**/*.sol" \
+&& solhint "installed_contracts/**/*.sol" \
 && echo "------------STARTING: solhint on test" \
 && solhint "test/**/*.sol" \
 && echo "------------STARTING: solium on contracts" \
 && solium -d contracts/ \
+&& solium -d installed_contracts/ \
 && echo "------------DONE: :)"
