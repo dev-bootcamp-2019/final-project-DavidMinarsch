@@ -4,7 +4,7 @@ The ProofOfExistence contract is kept relatively simple, utilizes audited librar
 
 Security tools are used to increase safety and find bugs (see README.md how to run all linters).
 
-See also [design_pattern_decisions.md](../design_pattern_decisions.md) for further comments on how the design aids safety.
+See also [design_pattern_decisions.md](../docs/design_pattern_decisions.md) for further comments on how the design aids safety.
 
 ## Common attacks and how they are avoided:
 

@@ -7,7 +7,7 @@
 * [deployed_addresses.md](../master/docs/deployed_addresses.md)
 * [design_pattern_decisions.md](../master/docs/design_pattern_decisions.md)
 
-
+🐍 Three simple Vyper contracts are available [here](../master/docs/vyper_contracts) (they are not connected to the main project).
 
 ## Description
 This application allows users who have an Ethereum account to prove the existence of a file at a specific point in time by registering an IPFS hash of the file on the Ethereum blockchain.
@@ -17,7 +17,7 @@ To preserve the privacy of the user's file it is not permanently stored. The fil
 Implicit to the above use case of proof of existence are other use cases like file integrity checking.
 
 User stories:
-- A user visits the app from a web3 enabled browser or web2 browser with a Metamask extension. The user must have at least one account registered in their wallet. By default the application uses the first account address registered in the wallet. The user can upload a file to the app and initiate a transaction which references the IPFS hash of the file and a time stamp on the blockchain.
+- A user visits the app from a web3 enabled browser or web2 browser with a MetaMask extension. The user must have at least one account registered in their wallet. By default the application uses the first account address registered in the wallet. The user can upload a file to the app and initiate a transaction which references the IPFS hash of the file and a time stamp on the blockchain.
 
 - The app reads the user's account address and shows all the previous registrations associated to this address. The registration information includes the IPFS hash and the timestamp.
 
