@@ -235,7 +235,7 @@ slither contracts/ProofOfExistence.sol
 ## Build for production:
 Build for production:
 ```
-cd client && s
+cd client && npm run build
 ```
 Then to serve run:
 ```
