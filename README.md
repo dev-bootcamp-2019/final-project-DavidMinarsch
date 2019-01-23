@@ -2,10 +2,10 @@
 
 💥 The DApp is hosted on IPFS [here](https://ipfs.io/ipfs/).
 
-📕 Additional documentation in [docs](../blob/master/docs):
-* [avoiding_common_attacks.md](../blob/master/docs/avoiding_common_attacks.md)
-* [deployed_addresses.md](../blob/master/docs/deployed_addresses.md)
-* [design_pattern_decisions.md](../blob/master/docs/design_pattern_decisions.md)
+📕 Additional documentation in [docs](../master/docs):
+* [avoiding_common_attacks.md](../master/docs/avoiding_common_attacks.md)
+* [deployed_addresses.md](../master/docs/deployed_addresses.md)
+* [design_pattern_decisions.md](../master/docs/design_pattern_decisions.md)
 
 
 
