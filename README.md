@@ -132,7 +132,7 @@ const networkId = await web3.eth.net.getId()
 const address = await ProofOfExistence.networks[networkId].address
 const proofOfExistence = await ProofOfExistence.at(address)
 ```
-Then confirm the beneficiary equals the deployer address set above:
+Then confirm the beneficiary equals the beneficiary address set above:
 ```
 const beneficiary_address = await web3.eth.getAccounts().then(a => {return a[1];})
 const beneficiary = await proofOfExistence.beneficiary({from: beneficiary_address })
@@ -235,14 +235,55 @@ slither contracts/ProofOfExistence.sol
 ## Build for production:
 Build for production:
 ```
-cd client && npm run build
+cd client && s
 ```
 Then to serve run:
 ```
 serve -s build
 ```
 
-## Deployment to IPFS
+## Contract Deployment to Rinkeby:
+
+1. Create a `.secret` file with the mnemonic associated with three derived accounts (like above) which hold Ether on Rinkeby.
+
+2. Create an infura project and save the API key to a `.infura_key` file.
+
+3. Compile:
+```
+npx zos add ProofOfExistence
+```
+4. Set session:
+```
+npx zos session --network rinkeby --from $DEPLOYER_ADDRESS --expires 3600
+``` 
+5. Deploy:
+```
+npx zos push
+npx zos create ProofOfExistence --init initialize --args $BENEFICIARY_ADDRESS,$PAUSER_ADDRESS
+```
+6. (Optional) Interact with the contract via Truffle console (`npx truffle console --network rinkeby`), like so:
+```
+const proofOfExistence = await ProofOfExistence.at('<your-contract-address>')
+```
+or
+```
+const networkId = await web3.eth.net.getId()
+const address = await ProofOfExistence.networks[networkId].address
+const proofOfExistence = await ProofOfExistence.at(address)
+```
+Then confirm the beneficiary equals the beneficiary address set above:
+```
+const beneficiary_address = '0x8948508cB3119A845cCF0430fd8e9d1C0C205F0F'
+const beneficiary = await proofOfExistence.beneficiary({from: beneficiary_address })
+beneficiary === beneficiary_address
+const paused = await proofOfExistence.paused({from: beneficiary_address })
+paused == false
+const pauser_address = '0x949fcF8a38EB0A6B1F3cCb44e21545fDFfD3B2bB'
+const pauserIsPauser = await proofOfExistence.isPauser(pauser_address, {from: pauser_address })
+const beneficiaryIsPauser = await proofOfExistence.isPauser(beneficiary_address, {from: pauser_address })
+```
+
+## DApp Deployment to IPFS:
 
 1. Start an ipfs node (download it [here](https://docs.ipfs.io/introduction/install/) if you don't have it already)
 ```

@@ -3,3 +3,6 @@ node_modules/
 client/node_modules/
 client/build
 .zos.session
+.secret
+.infura_key
+.env.rinkeby
