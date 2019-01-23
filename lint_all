@@ -1,0 +1,28 @@
+#! /bin/sh
+echo "------------STARTING: eslint on migrations" \
+&& eslint migrations/** -c .eslintrc.js --fix \
+&& echo "------------STARTING: eslint on test" \
+&& eslint test/proofofexistence.js -c .eslintrc.js --fix \
+&& echo "------------STARTING: eslint on client" \
+&& cd client \
+&& eslint src/App.js -c .eslintrc.js --fix \
+&& eslint src/utils/getWeb3.js -c .eslintrc.js --fix \
+&& eslint src/components/Register/ipfs.js -c .eslintrc.js --fix \
+&& eslint src/components/Register/Register.js -c .eslintrc.js --fix \
+&& eslint src/components/Registration/Registration.js -c .eslintrc.js --fix \
+&& eslint src/components/Registrations/Registrations.js -c .eslintrc.js --fix \
+&& eslint src/components/Shared/EtherscanIOLink.js -c .eslintrc.js --fix \
+&& eslint src/components/Shared/Header.js -c .eslintrc.js --fix \
+&& eslint src/components/Shared/NetworkNotice.js -c .eslintrc.js --fix \
+&& eslint src/components/Shared/NetworkStatus.js -c .eslintrc.js --fix \
+&& eslint src/components/Shared/PathNotFound.js -c .eslintrc.js --fix \
+&& cd .. \
+&& echo "------------STARTING: solhint on contracts" \
+&& solhint "contracts/**/*.sol" \
+&& solhint "installed_contracts/**/*.sol" \
+&& echo "------------STARTING: solhint on test" \
+&& solhint "test/**/*.sol" \
+&& echo "------------STARTING: solium on contracts" \
+&& solium -d contracts/ \
+&& solium -d installed_contracts/ \
+&& echo "------------DONE: :)"

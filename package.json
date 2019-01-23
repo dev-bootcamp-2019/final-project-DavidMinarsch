@@ -1,0 +1,27 @@
+{
+  "name": "final-project-davidminarsch",
+  "version": "1.0.0",
+  "description": "Proof of Existence Dapp",
+  "main": "",
+  "directories": {
+    "doc": "docs",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dev-bootcamp-2019/final-project-DavidMinarsch.git"
+  },
+  "author": "David Minarsch",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/dev-bootcamp-2019/final-project-DavidMinarsch/issues"
+  },
+  "homepage": "https://github.com/dev-bootcamp-2019/final-project-DavidMinarsch#readme",
+  "dependencies": {
+    "zos": "^2.1.0",
+    "zos-lib": "^2.1.0"
+  }
+}
