@@ -100,7 +100,7 @@ class App extends Component {
         const registration = await contract.methods.getRegistrationForId(ids[i]).call({ from: accounts[0] });
         if (registration.hash === '') throw new Error('Registration does not exist.');
         if (registration.registrant !== accounts[0]) throw new Error('Registration belongs to a different account.');
-        newRegistrations.push([registration.hash, registration.timestamp]); //ensure we find transaction hash here too!
+        newRegistrations.push([registration.hash, registration.timestamp, registration.registrant]); //ensure we find transaction hash here too!
       } catch (e) {
         allRegistrationsLoaded = true;
         break;

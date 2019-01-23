@@ -20,6 +20,7 @@ class Registration extends Component {
     const { network, registration } = this.props;
     const ipfsHash = this.multiHashToIpfsHash(registration[0]);
     const timestamp = parseInt(registration[1], 10) * 1000;
+    const registrant = registration[2];
 
     return (
       <div className="card">
@@ -40,7 +41,7 @@ class Registration extends Component {
                 {ipfsHash.slice(23,46)}
               </div>
               <br />
-              <EtherscanIOLink hash={ipfsHash} type='ipfs' network={network} />
+              <EtherscanIOLink hash={registrant} type='address' network={network} />
               <br />
               <br />
               <div className="is-size-7">

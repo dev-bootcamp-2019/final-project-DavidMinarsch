@@ -11,7 +11,7 @@ const EtherscanIOLink = (props) => {
           className="button is-size-small is-rounded is-light"
           type="button"
         >
-          View the transactions related to this account on etherscan.io
+          Account on etherscan.io
         </button>
       </a>
     );
