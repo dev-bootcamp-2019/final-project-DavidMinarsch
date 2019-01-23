@@ -13,7 +13,7 @@ contract TestProofOfExistence {
         address payable zeroAddress = 0x0000000000000000000000000000000000000000;
         // We expect the contract to be deployed but not initialized
         // (as deployment here happens via Truffle, not zos):
-        require(beneficiary == zeroAddress, "Deployment did cause initialization."); // string(abi.encodePacked(toString(msg.sender), toString(beneficiary)))
+        require(beneficiary == zeroAddress, "Deployment did cause initialization.");
     }
 
     function toString(address x) internal pure returns (string memory) {

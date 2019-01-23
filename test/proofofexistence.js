@@ -1,7 +1,11 @@
 // const zos = require('zos');
 const ProofOfExistence = artifacts.require('../contracts/ProofOfExistence.sol');
 
-contract('ProofOfExistence', (accounts) => {
+/** This runs tests with the standard migration provided by Truffle. Hence, our contracts
+  * will not be properly initialized due to our use of the ZeppelinOS library. We can still test
+  * the user facing functionalities of the contract.
+  */
+contract('ProofOfExistence tests with standard Truffle migration', (accounts) => {
   // const DEPLOYER_ADDRESS = accounts[0];
   const BENEFICIARY_ADDRESS = accounts[1];
   const PAUSER_ADDRESS = accounts[2];
@@ -24,60 +28,75 @@ contract('ProofOfExistence', (accounts) => {
   });
 
   // Tests hash registration
-  describe('Registering a hash', () => {
+  describe('Registering hashes', () => {
     // The count must start at 0 for correct initialization.
     it('...should initialize with the correct count.', async () => {
-      const count = await proofOfExistence.count();
-      assert.equal(count, 0, 'Incorrect initial count.');
+      const actualCount = await proofOfExistence.count();
+      const EXPECTED_COUNT = 0;
+      assert.equal(actualCount, EXPECTED_COUNT, 'Incorrect initial count.');
     });
 
     // This tests if a hash can be successfully registered.
     it('...should register a hash.', async () => {
-      const gas = await proofOfExistence.registerHash.estimateGas(SAMPLE_HASH_ONE);
-      await proofOfExistence.registerHash.sendTransaction(
-        SAMPLE_HASH_ONE,
-        { from: USER_ADDRESS, gas },
-      );
+      try {
+        const gasEstimate = await proofOfExistence.registerHash.estimateGas(SAMPLE_HASH_ONE);
+        await proofOfExistence.registerHash.sendTransaction(
+          SAMPLE_HASH_ONE,
+          { from: USER_ADDRESS, gasEstimate },
+        );
+      } catch (err) {
+        assert.throw(`Failed to register a hash: ${err.toString()}`);
+      }
     });
 
     // This tests if the count has been correctly incremented following a registration.
     it('...should increment count correctly.', async () => {
-      const count = await proofOfExistence.count();
-      assert.equal(count, 1, 'Incorrectly incremented count.');
+      const actualCount = await proofOfExistence.count();
+      const EXPECTED_COUNT = 1
+      assert.equal(actualCount, EXPECTED_COUNT, 'Incorrectly incremented count.');
     });
 
     // This tests the same hash cannot be registered again.
     it('...should not register same hash again.', async () => {
       try {
-        const gas = await proofOfExistence.registerHash.estimateGas(SAMPLE_HASH_ONE);
+        const gasEstimate = await proofOfExistence.registerHash.estimateGas(SAMPLE_HASH_ONE);
         await proofOfExistence.registerHash.sendTransaction(
           SAMPLE_HASH_ONE,
-          { from: USER_ADDRESS, gas },
+          { from: USER_ADDRESS, gasEstimate },
         );
-      } catch (err) { assert.equal(err.message.includes('revert'), true, 'Does not revert on same hash beeing registered twice'); }
+      } catch (err) { 
+        assert.equal(err.message.includes('revert'), true, 'Does not revert on same hash being registered twice'); 
+      }
     });
 
     // This tests that two more hashes can be registered.
     it('...should register two more hashes.', async () => {
-      const gasTwo = await proofOfExistence.registerHash.estimateGas(SAMPLE_HASH_TWO);
-      await proofOfExistence.registerHash.sendTransaction(
-        SAMPLE_HASH_TWO,
-        { from: BENEFICIARY_ADDRESS, gasTwo },
-      );
-      const gasThree = await proofOfExistence.registerHash.estimateGas(SAMPLE_HASH_THREE);
-      await proofOfExistence.registerHash.sendTransaction(
-        SAMPLE_HASH_THREE,
-        { from: BENEFICIARY_ADDRESS, gasThree },
-      );
-
+      try {
+        const gasTwo = await proofOfExistence.registerHash.estimateGas(SAMPLE_HASH_TWO);
+        await proofOfExistence.registerHash.sendTransaction(
+          SAMPLE_HASH_TWO,
+          { from: BENEFICIARY_ADDRESS, gasTwo },
+        );
+        const gasThree = await proofOfExistence.registerHash.estimateGas(SAMPLE_HASH_THREE);
+        await proofOfExistence.registerHash.sendTransaction(
+          SAMPLE_HASH_THREE,
+          { from: BENEFICIARY_ADDRESS, gasThree },
+        );
+      } catch (err) {
+        assert.throw(`Failed to register two more hashes: ${err.toString()}`);
+      }
     });
   });
 
   // This tests getting the registration data from a hash
   describe('Retrieving registration data by hash', () => {
-    it('...should show correct registration data.', async () => {
+    it('...should show correct registration registrant.', async () => {
       const result = await proofOfExistence.getRegistrationForHash.call(SAMPLE_HASH_ONE);
       assert.equal(result.registrant, USER_ADDRESS, 'Does not show correct registrant.');
+    });
+
+    it('...should show correct registration hash.', async () => {
+      const result = await proofOfExistence.getRegistrationForHash.call(SAMPLE_HASH_ONE);
       assert.equal(result.hash, SAMPLE_HASH_ONE, 'Does not show correct hash.');
     });
 
@@ -104,7 +123,9 @@ contract('ProofOfExistence', (accounts) => {
     it('...should revert for invalid address.', async () => {
       try {
         await proofOfExistence.getIdsForAddress.call(0);
-      } catch (err) { assert.equal(err.message.includes('invalid address'), true, 'Does not revert on invalid address.'); }
+      } catch (err) {
+        assert.equal(err.message.includes('invalid address'), true, 'Does not revert on invalid address.');
+      }
     });
   });
 
@@ -165,40 +186,44 @@ contract('ProofOfExistence', (accounts) => {
       } catch (err) { assert.equal(err.message.includes('revert'), true, 'Does not revert on ether being sent.'); }
     });
   });
-
-  // describe('ZOS upgradeability', () => {
-  //   it('...should create a proxy', async function () {
-  //     const project = await zos.TestHelper({ from: DEPLOYER_ADDRESS });
-  //     const proxy = await project.createProxy(ProofOfExistence, { initMethod: 'initialize', initArgs: [BENEFICIARY_ADDRESS,PAUSER_ADDRESS], initFrom: DEPLOYER_ADDRESS});
-  //     const result = await proxy.beneficiary();
-  //     assert.equal(result, BENEFICIARY_ADDRESS, 'Returns incorrect beneficiary.');
-  //   });
-  // });
 });
 
+/** This runs tests with the migration provided by ZeppelinOS. Hence, our contracts
+  * will be properly initialized and we can test the features of the contract relying on
+  * proper initialization. DUE TO A BUG THIS DOES NOT WORK (see: https://github.com/zeppelinos/zos/issues/593)
+  */
+// contract('ProofOfExistence tests with ZeppelinOS supported migration', (accounts) => {
+//   const DEPLOYER_ADDRESS = accounts[0];
+//   const BENEFICIARY_ADDRESS = accounts[1];
+//   const PAUSER_ADDRESS = accounts[2];
 
-// contract TestProofOfExistence {string(abi.encodePacked("The beneficiary was not set correctly.", "_" ,msg.sender, "_", beneficiary, "_", DeployedAddresses.ProofOfExistence()))
+//   let proofOfExistence;
 
-//     ProofOfExistence public proofOfExistenceDeployed = ProofOfExistence(DeployedAddresses.ProofOfExistence());
-//     ProofOfExistence public proofOfExistenceCreated = new ProofOfExistence(msg.sender, msg.sender);
+//   before('Before: deploy and get instance', async () => {
+//     describe('ZOS upgradeability', () => {
+//       it('...should create a proxy', async function () {
+//         const project = await zos.TestHelper({ from: DEPLOYER_ADDRESS });
+//         const proxy = await project.createProxy(ProofOfExistence, { initMethod: 'initialize', initArgs: [BENEFICIARY_ADDRESS,PAUSER_ADDRESS], initFrom: DEPLOYER_ADDRESS});
+//         const result = await proxy.beneficiary();
+//         assert.equal(result, BENEFICIARY_ADDRESS, 'Returns incorrect beneficiary.');
+//       });
+//     });
+//   });
 
-//     function testContractWasDeployed() public {
-//         address payable beneficiary = proofOfExistenceDeployed.beneficiary();
-//         Assert.equal(beneficiary, msg.sender, "The beneficiary was not set correctly.");
-//     }
-    
-//     function testBeneficiaryCanWithdrawFunds() public {
-//         address payable beneficiary = proofOfExistenceCreated.beneficiary();
-//         uint startBalance = beneficiary.balance;
-//         uint expectedWithdrawAmount = address(proofOfExistenceCreated).balance;
+//   describe('Pausability', () => {
+//     it('...should confirm pauser has role pauser', async function () {});
+//     it('...should pause for pauser', async function () {});
+//     it('...should unpause for pauser', async function () {});
+//   });
 
-//         proofOfExistenceCreated.withdraw();
-
-//         // prevent overflow
-//         uint256 expectedTotal = startBalance + expectedWithdrawAmount;
-//         require(expectedTotal >= startBalance, "Overflow occured, check the code!");
-        
-
-//         Assert.equal(beneficiary.balance, expectedTotal, "The withdraw function does not work as expected.");
-//     }
-// }
+//   describe('Fund withdrawal', () => {
+//     it('...should allow beneficiary to withdraw funds.', async function () {
+//       const startBalance = await web3.eth.getBalance(BENEFICIARY_ADDRESS);
+//       const expectedWithdrawAmount = await proofOfExistence.balance();
+//       await proofOfExistence.withdraw({from: BENEFICIARY_ADDRESS});
+//       const endBalance = await web3.eth.getBalance(BENEFICIARY_ADDRESS);
+//       assert.equal(endBalance, startBalance + expectedWithdrawAmount, "The withdraw function does not work as expected.");
+//     });
+//     it('...should not allow pauser to withdraw funds', async function () {});
+//   });
+// });
