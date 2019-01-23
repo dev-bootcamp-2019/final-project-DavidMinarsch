@@ -26,7 +26,7 @@ User stories:
 - The user can check if a given file has already been registered and at which time by uploading it to the app. If the file has already been registered by the user or another user then the app will show the registration information (IPFS hash and timestamp) and a link to the relevant account address which has registered the file.
 
 ## Development setup:
-Go to root folder and ensure Node.js version is aligned:
+Go to root folder and ensure Node.js version is aligned (go [here](https://github.com/creationix/nvm) for details on how to install nvm on your machine):
 ```
 nvm install
 ```
@@ -48,19 +48,19 @@ rm -rf client/src/contracts/*
 ```
 2. Start a test blockchain (in deterministic mode: so it generates deterministic addresses based on a pre-defined mnemonic) with the ganache-cli:
 ```
-ganache-cli --deterministic
+npx ganache-cli --deterministic
 ```
 3. In a second terminal window test contracts for expected behaviour:
 ```
-truffle test
+npx truffle test
 ```
 4. Compile contracts:
 ```
-truffle compile
+npx truffle compile
 ```
 5. Migrate contracts onto the test blockchain:
 ```
-truffle migrate
+npx truffle migrate
 ```
 6. (Optional) Run tests on DApp:
 ```
@@ -70,7 +70,7 @@ cd client && npm test
 ```
 cd client && npm run start
 ```
-8. Make sure MetaMask points to correct network **AND** has your account loaded. The DApp will likely show an error if you do not connect it to the local test network via the MetaMask dropdown!
+8. Make sure MetaMask points to correct network (private network: localhost 8545) **AND** has your account loaded. The DApp will likely show an error if you do not connect it to the local test network via the MetaMask dropdown!
 
 
 ## For development (upgradable route utilizing ZeppelinOS) - preferred approach:
@@ -81,10 +81,10 @@ rm -rf client/src/contracts/*
 
 2. Start a test blockchain (in deterministic mode: so it generates deterministic addresses based on a pre-defined mnemonic) with ganache-cli:
 ```
-ganache-cli --deterministic
+npx ganache-cli --deterministic
 
 ```
-Take the first account address listed and add it to a .env file under DEPLOYER_ADDRESS
+Take the first account address listed and add it to a .env file (assuming you are using [autoenv](https://github.com/kennethreitz/autoenv), alternatively export directly) under DEPLOYER_ADDRESS
 ```
 export DEPLOYER_ADDRESS=0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1
 ```
@@ -121,7 +121,8 @@ c) Third, create/deploy first usable upgradeable instance (proxy) of ProofOfExis
 npx zos create ProofOfExistence --init initialize --args $BENEFICIARY_ADDRESS,$PAUSER_ADDRESS
 ```
 You will see the contract address printed on terminal.
-d) (Optional) Interact with the contract via Truffle console (`truffle console`), like so:
+
+d) (Optional) Interact with the contract via Truffle console (`npx truffle console`), like so:
 ```
 const proofOfExistence = await ProofOfExistence.at('<your-contract-address>')
 ```
@@ -180,7 +181,7 @@ proofOfExistence.paused({from: pauser_address})
 ```
 4. Unpause the contract again:
 ```
-proofOfExistence.unpaused({from: pauser_address})
+proofOfExistence.unpause({from: pauser_address})
 ```
 
 ### Upgrading the contract using ZeppelinOS:
@@ -207,6 +208,7 @@ npx zos update ProofOfExistence
 4. Check that the getter function for our new public variable is set:
 ```
 const proofOfExistence = await ProofOfExistence.at('<your-contract-address>')
+const pauser_address = await web3.eth.getAccounts().then(a => {return a[2];})
 const lastTimestamp = await proofOfExistence.lastTimestamp({from: pauser_address})
 ```
 For more on upgradeability see the [ZeppelinOS Docs](https://docs.zeppelinos.org/docs/upgrading.html).
@@ -215,6 +217,12 @@ For more on upgradeability see the [ZeppelinOS Docs](https://docs.zeppelinos.org
 You can run a linting script (first make `lint_all` executable: `chmod +x lint_all`) which runs the common linters:
 ```
 ./lint_all
+
+```
+For this to run, you will need some global installs:
+```
+npm install -g eslint eslint-plugin-import eslint-config-airbnb eslint-plugin-jsx-a11y eslint-plugin-react
+npm install -g solhint@1.5.0 solium@1.2.1
 
 ```
 More linters (with issues due to React/ZeppelinOS setup):
@@ -236,7 +244,7 @@ serve -s build
 
 ## Deployment to IPFS
 
-1. Start an ipfs node
+1. Start an ipfs node (download it [here](https://docs.ipfs.io/introduction/install/) if you don't have it already)
 ```
 ipfs daemon
 ```
