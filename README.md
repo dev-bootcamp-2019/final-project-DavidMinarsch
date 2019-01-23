@@ -1,6 +1,6 @@
 # final-project-DavidMinarsch
 
-💥 The DApp is hosted on IPFS [here](https://ipfs.io/ipfs/).
+💥 The DApp is deployed on the Rinkeby test net and hosted on IPFS [here](https://ipfs.io/ipfs/).
 
 📕 Additional documentation in [docs](../master/docs):
 * [avoiding_common_attacks.md](../master/docs/avoiding_common_attacks.md)
@@ -8,6 +8,8 @@
 * [design_pattern_decisions.md](../master/docs/design_pattern_decisions.md)
 
 🐍 Three simple Vyper contracts are available [here](../master/docs/vyper_contracts) (they are not connected to the main project).
+
+💪 A number of installed contracts are utilized. They have been manually included in [installed_contracts](../master/installed_contracts) from OpenZeppelin as the respective npm packages' Solidity versions clashed with this project's requirements.
 
 ## Description
 This application allows users who have an Ethereum account to prove the existence of a file at a specific point in time by registering an IPFS hash of the file on the Ethereum blockchain.
@@ -22,9 +24,6 @@ User stories:
 - The app reads the user's account address and shows all the previous registrations associated to this address. The registration information includes the IPFS hash and the timestamp.
 
 - The user can check if a given file has already been registered and at which time by uploading it to the app. If the file has already been registered by the user or another user then the app will show the registration information (IPFS hash and timestamp) and a link to the relevant account address which has registered the file.
-
-The app is deployed on the Rinkeby test net and served from IPFS at:
-
 
 ## Development setup:
 Go to root folder and ensure Node.js version is aligned:
@@ -41,7 +40,7 @@ cd client && npm install
 ```
 
 ## For development (non-upgradable route):
-Note: This approach is only included to meet the project requirements. The preferred approach is described in the next section. This approach deploys the contract to the test network without initializing it. This projects uses ZeppelinOS for which contract initialization is handled with an initialize() function rather than a constructor(), hence `truffle migrate` does not pick up on the initialization. This contract will not be upgradeable (logic and storage are not separated).
+Note: This approach is only included to meet the project requirements. The preferred approach is described in the next section. This approach deploys the contract to the test network without initializing it. This projects uses ZeppelinOS for which contract initialization is handled with an `initialize()` function rather than a `constructor()`, hence `truffle migrate` does not pick up on the initialization. This contract will not be upgradeable (logic and storage are not separated).
 
 1. Navigate to project root and delete all historic compiled contracts:
 ```
@@ -71,10 +70,10 @@ cd client && npm test
 ```
 cd client && npm run start
 ```
-8. Make sure MetaMask points to correct network AND has your account loaded. The DApp will likely show an error if you do not connect it to the local test network via the MetaMask dropdown!
+8. Make sure MetaMask points to correct network **AND** has your account loaded. The DApp will likely show an error if you do not connect it to the local test network via the MetaMask dropdown!
 
 
-## For development (upgradable route utilizing Zeppelin-OS) - preferred approach:
+## For development (upgradable route utilizing ZeppelinOS) - preferred approach:
 1. Delete all historic compiled contracts:
 ```
 rm -rf client/src/contracts/*
@@ -153,9 +152,10 @@ cd client && npm run start
 ```
 0xb0057716d5917badaf911b193b12b910811c1497b5bada8d7711f758981c3773
 ```
+The DApp will likely show an error if you do not connect it to the local test network via the MetaMask dropdown!
 
 ### Pausing the contract:
-Before continuing have a look at [design_pattern_decisions.md](../blob/master/docs/design_pattern_decisions.md) to read about the Emergency Stop Pattern there.
+Before continuing have a look at [design_pattern_decisions.md](../master/docs/design_pattern_decisions.md) to read about the Emergency Stop Pattern there.
 
 1. Start Truffle console and get the contract instance:
 ```
@@ -199,6 +199,7 @@ lastTimestamp = now;
 npx zos push
 ```
 If this step throws an error ('No AST nodes with id <ID> found') then remove the old compiled contracts (`rm -rf client/src/contracts/*`) and try again ([more info here](https://github.com/zeppelinos/zos/issues/465))
+
 3. And update the existing proxy with the new logic contract:
 ```
 npx zos update ProofOfExistence
