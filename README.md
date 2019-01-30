@@ -1,6 +1,6 @@
 # final-project-DavidMinarsch
 
-💥 The DApp is deployed on the Rinkeby test net and hosted on IPFS [here](https://ipfs.io/ipfs/).
+💥 The DApp is deployed on the Rinkeby test net and hosted on IPFS [here](https://ipfs.io/ipfs/QmVKuVAkhM76NimdSwuWPYShCcRZgxXAZVS8m32PrzhTnL/) or [here (much faster)](https://gateway.pinata.cloud/ipfs/QmVKuVAkhM76NimdSwuWPYShCcRZgxXAZVS8m32PrzhTnL/).
 
 📕 Additional documentation in [docs](../master/docs):
 * [avoiding_common_attacks.md](../master/docs/avoiding_common_attacks.md)
