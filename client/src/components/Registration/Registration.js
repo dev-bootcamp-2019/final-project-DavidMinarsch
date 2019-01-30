@@ -36,7 +36,7 @@ class Registration extends Component {
                 IPFS Hash:
               </div>
               <div className="is-size-7 has-text-weight-bold">
-                {ipfsHash.slice(0,22)}
+                {ipfsHash.slice(0,23)}
                 <br />
                 {ipfsHash.slice(23,46)}
               </div>
